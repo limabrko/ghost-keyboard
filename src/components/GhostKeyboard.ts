@@ -160,7 +160,7 @@ class GhostKeyboard {
     return removedChars;
   }
 
-  executeKey(code: string, mods: KeyboardEventMods): string {
+  executeKey(code: string, mods?: KeyboardEventMods): string {
     switch(code) {
       case 'Backspace':
         this.onBackspace();
