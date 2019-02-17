@@ -1,0 +1,30 @@
+{
+  "name": "ghost-keyboard",
+  "version": "1.0.0",
+  "description": "Simulate any keyboard behaviour even not installed",
+  "main": "dist/ghost-keyboard.js",
+  "scripts": {
+    "start": "webpack --watch",
+    "dev": "concurrently \"webpack --progress --colors --watch\" \"karma start --colors\"",
+    "test": "karma start",
+    "build": "NODE_ENV=production webpack --config webpack.config.js"
+  },
+  "author": {
+    "name": "Felipe Lima",
+    "url": "https://github.com/fill-lima"
+  },
+  "keywords": [
+    "keyboard"
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "karma": "^4.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^2.0.1",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3"
+  }
+}
