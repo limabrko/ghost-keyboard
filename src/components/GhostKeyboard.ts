@@ -5,8 +5,8 @@ const defaultConfig: Config = {
   lang: 'en', 
   value: '',
   caretPos: {
-    start: 0,
-    end: 0
+    startPos: 0,
+    endPos: 0
   }
 };
 
@@ -15,14 +15,8 @@ class GhostKeyboard {
   private Keyboard: Keyboard;
   private IME: IME;
   private isComposing: boolean;
-  private actions: {
-    Backspace: () => void;
-    ArrowUp: () => void;
-    ArrowRight: () => void;
-    ArrowDown: () => void;
-    ArrowLeft: () => void;
-    Space: () => void;
-  };
+  private capslock: boolean;
+  private input: HTMLInputElement|null;
   value: string;
   caretPos: CaretPos;
 
@@ -34,27 +28,21 @@ class GhostKeyboard {
     this.lang = config.lang;
     this.Keyboard = new Keyboard(this.lang);
     this.IME = new IME(config.lang);
+    this.setInput(config.input);
 
     this.value = config.value;
     this.caretPos = {
-      start: config.caretPos.start,
-      end: config.caretPos.end
+      startPos: config.caretPos.startPos,
+      endPos: config.caretPos.endPos
     };
     this.isComposing = false;
-    this.actions = {
-      Backspace: this.onBackspace.bind(this),
-      ArrowUp: this.onBackspace.bind(this),
-      ArrowRight: this.onBackspace.bind(this),
-      ArrowDown: this.onBackspace.bind(this),
-      ArrowLeft: this.onBackspace.bind(this),
-      Space: this.onBackspace.bind(this)
-    };
+    this.capslock = false;
   }
 
-  private getCaretPos() {
+  private getCaretPos(): CaretPos {
     return {
-      startPos: this.caretPos.start,
-      endPos: this.caretPos.end
+      startPos: this.caretPos.startPos,
+      endPos: this.caretPos.endPos
     }
   }
 
@@ -77,19 +65,19 @@ class GhostKeyboard {
       endPos = len;
     }
 
-    this.caretPos.start = startPos;
-    this.caretPos.end = endPos;
+    this.caretPos.startPos = startPos;
+    this.caretPos.endPos = endPos;
   }
 
   private insertChar(char: string): void {
     let value = this.value,
         len = value.length;
 
-    this.value = value.substring(0, this.caretPos.start) + char + value.substring(this.caretPos.end, len);
-    this.setCaretPos(this.caretPos.start + char.length);
+    this.value = value.substring(0, this.caretPos.startPos) + char + value.substring(this.caretPos.endPos, len);
+    this.setCaretPos(this.caretPos.startPos + char.length);
   }
 
-  private removeComposing() {
+  private removeComposing(): string {
     let {startPos} = this.getCaretPos();
     this.setCaretPos(startPos - 1, startPos);
     return this.removeSelection();
@@ -149,6 +137,29 @@ class GhostKeyboard {
     }
   }
 
+  private setInput(input: HTMLInputElement): void {
+    if (!input) {
+      return;
+    }
+
+    if (typeof input !== 'object' || !(input instanceof HTMLInputElement)) {
+      throw new Error('HTMLInputElement is required');
+    }
+
+    this.input = input;
+    this.input.addEventListener('keydown', this.event.bind(this));
+  }
+
+  private updateInput(): void {
+    if (!this.input) {
+      return;
+    }
+
+    this.input.value = this.value;
+    this.input.selectionStart = this.caretPos.startPos;
+    this.input.selectionEnd = this.caretPos.endPos;
+  }
+
   removeSelection(): string {
     let {startPos, endPos} = this.getCaretPos();
     let value = this.value;
@@ -193,6 +204,7 @@ class GhostKeyboard {
         this.insertChar(char);
       }
       
+      this.updateInput();
       return this.value;
   }
 

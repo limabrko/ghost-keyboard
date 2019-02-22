@@ -58,4 +58,16 @@ describe('Ghost Keyboard [Korean]', function() {
     keyboard.type('Backspace');
     expect(keyboard.value).toBe('사');
   });
+
+  it('Keyboard: attach method', function() {
+    let input = document.getElementById('ko_keyboard');
+    let keyboard = GhostKeyboard({
+      input,
+      lang: 'ko'
+    });
+
+    const keyEvent = new KeyboardEvent('keydown', { code: 'KeyA' });
+    input.dispatchEvent(keyEvent);
+    
+  });
 });

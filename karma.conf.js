@@ -6,6 +6,8 @@ module.exports = function(config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
+    customDebugFile: './test/static/debug.html',
+
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
@@ -14,7 +16,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      {pattern: './test/index.html', watched: false},
+      {pattern: './test/debug.html', watched: false},
       {pattern: './dist/*.js', watched: true},
       {pattern: './test/*.js', watched: true}
     ],

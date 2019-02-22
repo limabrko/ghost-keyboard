@@ -14,14 +14,15 @@ type KeySetData = {
 };
 
 type CaretPos = {
-  start: number;
-  end: number;
+  startPos: number;
+  endPos: number;
 }
 
 type Config = {
   lang: SupportedLangs;
   value?: string;
   caretPos?: CaretPos;
+  input?: HTMLInputElement;
 }
 
 type IMEComposer = {
