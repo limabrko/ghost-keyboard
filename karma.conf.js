@@ -6,7 +6,8 @@ module.exports = function(config) {
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
-    customDebugFile: './test/static/debug.html',
+    // customDebugFile: './test/static/debug.html',
+    // customContextFile: './test/static/context.html',
 
 
     // frameworks to use
@@ -16,7 +17,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      {pattern: './test/debug.html', watched: false},
+      //{pattern: './test/static/debug.html', watched: false},
       {pattern: './dist/*.js', watched: true},
       {pattern: './test/*.js', watched: true}
     ],

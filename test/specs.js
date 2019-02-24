@@ -1,3 +1,10 @@
+function createInput(id) {
+  let input = document.createElement('input');
+  input.id = id;
+  document.body.appendChild(input);
+  return input;
+}
+
 describe('Ghost Keyboard [English]', function() {
   
   it('Create Keyboard', function() {
@@ -21,7 +28,6 @@ describe('Ghost Keyboard [English]', function() {
 });
 
 describe('Ghost Keyboard [Korean]', function() {
-  
   it('Create Keyboard', function() {
     let keyboard = GhostKeyboard({lang: 'ko'});
     expect(keyboard.lang).toBe('ko'); 
@@ -59,15 +65,19 @@ describe('Ghost Keyboard [Korean]', function() {
     expect(keyboard.value).toBe('사');
   });
 
-  it('Keyboard: attach method', function() {
-    let input = document.getElementById('ko_keyboard');
+  it('Keyboard: input config', function() {
+    let input = createInput('keyboard_input_ko');
     let keyboard = GhostKeyboard({
       input,
       lang: 'ko'
     });
 
-    const keyEvent = new KeyboardEvent('keydown', { code: 'KeyA' });
+    let keyEvent = new KeyboardEvent('keydown', { code: 'KeyT' });
+    input.dispatchEvent(keyEvent);
+
+    keyEvent = new KeyboardEvent('keydown', { code: 'KeyK' });
     input.dispatchEvent(keyEvent);
     
+    expect(input.value).toBe('사');
   });
 });

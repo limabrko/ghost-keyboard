@@ -1,9 +1,14 @@
 const KEYSET_LIST: KeySetData[] = [
+  {code: "ShiftLeft", keyCode: 16},
+  {code: "ShiftRight", keyCode: 16},
+  {code: "Space", keyCode: 32},
   {code: "ArrowLeft", keyCode: 37},
   {code: "ArrowUp", keyCode: 38},
   {code: "ArrowRight", keyCode: 39},
   {code: "ArrowDown", keyCode: 40},
   {code: "Backspace", keyCode: 8},
+  {code: "Delete", keyCode: 46},
+  {code: "Tab", keyCode: 9},
   {code: "Digit1", keyCode: 49, ko: {base: "1", mod: "!"}, en: {base: "1", mod: '!'}},
   {code: "Digit2", keyCode: 50, ko: {base: "2", mod: "@"}, en: {base: "2", mod: '@'}},
   {code: "Digit3", keyCode: 51, ko: {base: "3", mod: "#"}, en: {base: "3", mod: '#'}},
@@ -79,7 +84,8 @@ class Keyboard {
       return KEYSET_LIST_BY_KEYCODE[key].code;
     }
 
-    throw new Error(`Key ${key} not found.`);
+    console.warn(`Key ${key} not found.`);
+    return null;
   }
 
   getChar(key: string): CharSet|null {

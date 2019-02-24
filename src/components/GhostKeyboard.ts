@@ -83,10 +83,39 @@ class GhostKeyboard {
     return this.removeSelection();
   }
 
-  private onBackspace(): void {
+  private isMultipleSelection() {
     let {startPos, endPos} = this.getCaretPos();
+    return (startPos !== endPos);
+  }
 
-    if (startPos !== endPos) {
+  private onSpace():void {
+    this.isComposing = false;
+
+    if (this.isMultipleSelection()) {
+      this.removeSelection();
+      return;
+    }
+
+    this.insertChar(' ');
+  }
+
+  private onDelete(): void {
+    let {startPos} = this.getCaretPos();
+    this.isComposing = false;
+
+    if (this.isMultipleSelection()) {
+      this.removeSelection();
+      return;
+    }
+
+    this.setCaretPos(startPos, startPos + 1);
+    this.removeSelection();
+  }
+
+  private onBackspace(): void {
+    let {startPos} = this.getCaretPos();
+
+    if (this.isMultipleSelection()) {
       this.removeSelection();
       return;
     }
@@ -137,6 +166,19 @@ class GhostKeyboard {
     }
   }
 
+  private onInputKeydown(e: KeyboardEvent) {
+    const ALLOWED_CODES = ['Tab'];
+    let code = this.Keyboard.getCode(e.code ? e.code : e.which);
+
+    if (ALLOWED_CODES.indexOf(code) !== -1) {
+      return;
+    }
+
+    e.preventDefault();
+    this.input.blur();
+    this.event(e);
+  }
+
   private setInput(input: HTMLInputElement): void {
     if (!input) {
       return;
@@ -147,7 +189,7 @@ class GhostKeyboard {
     }
 
     this.input = input;
-    this.input.addEventListener('keydown', this.event.bind(this));
+    this.input.addEventListener('keydown', this.onInputKeydown.bind(this));
   }
 
   private updateInput(): void {
@@ -155,12 +197,13 @@ class GhostKeyboard {
       return;
     }
 
+    this.input.focus();
     this.input.value = this.value;
     this.input.selectionStart = this.caretPos.startPos;
     this.input.selectionEnd = this.caretPos.endPos;
   }
 
-  removeSelection(): string {
+  private removeSelection(): string {
     let {startPos, endPos} = this.getCaretPos();
     let value = this.value;
     let removedChars = value.slice(startPos, endPos);
@@ -171,8 +214,14 @@ class GhostKeyboard {
     return removedChars;
   }
 
-  executeKey(code: string, mods?: KeyboardEventMods): string {
+  private executeKey(code: string, mods?: KeyboardEventMods): string {
     switch(code) {
+      case 'Space':
+        this.onSpace();
+        break;
+      case 'Delete':
+        this.onDelete();
+        break;
       case 'Backspace':
         this.onBackspace();
         break;
