@@ -1,16 +1,30 @@
 type SupportedLangs = 'en' | 'ko';
 
+type KeyboardCode = {
+  code: string;
+  keyCode: number;
+};
+
+type KeyboardConfig = {
+  lang: SupportedLangs;
+};
+
+type CharComposition = {
+  char: string;
+  position: number;
+};
+
 type CharSet = {
-  base: string;
-  mod: string;
+  code: string;
+  base?: string;
+  mod?: string;
   compose?: boolean;
 };
 
-type KeySetData = {
+type Char = {
   code: string;
-  keyCode: number;
-  en?: CharSet;
-  ko?: CharSet;
+  char: string;
+  compose?: boolean;
 };
 
 type CaretPos = {
@@ -32,8 +46,9 @@ type IMEComposer = {
 };
 
 type KeyboardEventMods = {
-  ctrlKey: boolean;
-  altKey: boolean;
-  shiftKey: boolean;
-  metaKey: boolean;
+  ctrlKey?: boolean;
+  altKey?: boolean;
+  shiftKey?: boolean;
+  metaKey?: boolean;
+  capslock?: boolean;
 };

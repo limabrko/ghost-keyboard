@@ -1,4 +1,4 @@
-import Keyboard from './Keyboard';
+import Keyboard from '../keyboards';
 import IME from '../IME';
 
 const defaultConfig: Config = {
@@ -12,9 +12,9 @@ const defaultConfig: Config = {
 
 class GhostKeyboard {
   private lang: SupportedLangs;
-  private Keyboard: Keyboard;
+  private Keyboard: any;
   private IME: IME;
-  private isComposing: boolean;
+  private composing: CharComposition|null;
   private capslock: boolean;
   private input: HTMLInputElement|null;
   value: string;
@@ -26,7 +26,7 @@ class GhostKeyboard {
     }
 
     this.lang = config.lang;
-    this.Keyboard = new Keyboard(this.lang);
+    this.Keyboard = Keyboard(this.lang);
     this.IME = new IME(config.lang);
     this.setInput(config.input);
 
@@ -35,7 +35,7 @@ class GhostKeyboard {
       startPos: config.caretPos.startPos,
       endPos: config.caretPos.endPos
     };
-    this.isComposing = false;
+    this.composing = null;
     this.capslock = false;
   }
 
@@ -78,8 +78,12 @@ class GhostKeyboard {
   }
 
   private removeComposing(): string {
-    let {startPos} = this.getCaretPos();
-    this.setCaretPos(startPos - 1, startPos);
+    if (!this.composing) {
+      return '';
+    }
+
+    this.setCaretPos(this.composing.position - this.composing.char.length, this.composing.position);
+    this.composing = null;
     return this.removeSelection();
   }
 
@@ -89,47 +93,50 @@ class GhostKeyboard {
   }
 
   private onSpace():void {
-    this.isComposing = false;
-
     if (this.isMultipleSelection()) {
       this.removeSelection();
       return;
     }
-
+    
+    this.composing = null;
     this.insertChar(' ');
   }
 
   private onDelete(): void {
-    let {startPos} = this.getCaretPos();
-    this.isComposing = false;
-
     if (this.isMultipleSelection()) {
       this.removeSelection();
       return;
     }
 
+    let {startPos} = this.getCaretPos();
+    
+    this.composing = null;
     this.setCaretPos(startPos, startPos + 1);
     this.removeSelection();
   }
 
   private onBackspace(): void {
-    let {startPos} = this.getCaretPos();
-
     if (this.isMultipleSelection()) {
       this.removeSelection();
       return;
     }
+    
+    let {startPos} = this.getCaretPos();
 
-    if (this.isComposing) {
+    if (this.composing) {
       let composingChar = this.removeComposing();
       let decomposeChar = this.IME.composer.decompose(composingChar);
-
-      if (composingChar.length === decomposeChar.length) {
-        this.isComposing = false;
+      if (decomposeChar.length === 1) {
         return;
       }
 
-      this.insertChar(this.IME.composer.compose(decomposeChar.slice(0, -1)));
+      let newCompositionChar = this.IME.composer.compose(decomposeChar.slice(0, -1));
+      this.composing = {
+        char: newCompositionChar,
+        position: this.caretPos.startPos + newCompositionChar.length
+      };
+
+      this.insertChar(this.composing.char);
       return;
     }
 
@@ -139,7 +146,7 @@ class GhostKeyboard {
 
   private onArrow(code: string): void {
     const {startPos, endPos} = this.getCaretPos();
-    this.isComposing = false;
+    this.composing = null;
 
     if (code === 'ArrowRight') {
       if (startPos !== endPos) {
@@ -166,6 +173,14 @@ class GhostKeyboard {
     }
   }
 
+  private onCompositionupdate(e: CompositionEvent) {
+    this.input.blur();
+    let input = this.input;
+    requestAnimationFrame(() => {
+      input.focus();
+    });
+  }
+
   private onInputKeydown(e: KeyboardEvent) {
     const ALLOWED_CODES = ['Tab'];
     let code = this.Keyboard.getCode(e.code ? e.code : e.which);
@@ -190,6 +205,7 @@ class GhostKeyboard {
 
     this.input = input;
     this.input.addEventListener('keydown', this.onInputKeydown.bind(this));
+    this.input.addEventListener('compositionstart', this.onCompositionupdate.bind(this));
   }
 
   private updateInput(): void {
@@ -207,15 +223,33 @@ class GhostKeyboard {
     let {startPos, endPos} = this.getCaretPos();
     let value = this.value;
     let removedChars = value.slice(startPos, endPos);
-
+    
     this.value = value.slice(0, startPos) + value.slice(endPos);
     this.setCaretPos(startPos);
+    this.composing = null;
 
     return removedChars;
   }
 
+  private mergeMods(mods: KeyboardEventMods): KeyboardEventMods {
+    if (!mods) {
+      return {
+        capslock: this.capslock
+      };
+    }
+
+    if (!mods.capslock) {
+      mods.capslock = this.capslock;
+    }
+
+    return mods;
+  }
+
   private executeKey(code: string, mods?: KeyboardEventMods): string {
     switch(code) {
+      case 'CapsLock':
+        this.capslock = !this.capslock;
+        break;
       case 'Space':
         this.onSpace();
         break;
@@ -232,22 +266,25 @@ class GhostKeyboard {
         this.onArrow(code);
         break;
       default:
-        let charSet = this.Keyboard.getChar(code);
+        let charSet = this.Keyboard.getChar(code, this.mergeMods(mods));
 
-        if (!charSet) {
+        if (!charSet || !charSet.char) {
           break;
         }
 
-        let char = charSet.base;
-    
-        if (!this.isComposing && charSet.compose) {
-          this.isComposing = true;
-        }
-    
-        if (this.isComposing && charSet.compose) {
+        let char = charSet.char;
+
+        if (this.composing && charSet.compose) {
           let composingChar = this.removeComposing();
-          let composition = this.IME.composer.compose(composingChar + charSet.base);
+          let composition = this.IME.composer.compose(composingChar + char);
           char = composition;
+        }
+
+        if (charSet.compose) {
+          this.composing = {
+            char: char.charAt(char.length -1),
+            position: this.caretPos.startPos + char.length
+          };
         }
     
         this.insertChar(char);
@@ -264,13 +301,25 @@ class GhostKeyboard {
 
     if (event.type === 'keydown') {
       let code = this.Keyboard.getCode(event.code ? event.code : event.which);
-      return this.executeKey(code);
+      let mods: KeyboardEventMods = {
+        metaKey: event.metaKey,
+        ctrlKey: event.ctrlKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+      };
+
+      if (event.getModifierState) {
+        this.capslock = event.getModifierState('CapsLock');
+        mods.capslock = this.capslock;
+      }
+
+      return this.executeKey(code, mods);
     }
   }
 
-  type(key: string|number) {
+  type(key: string|number, mods?: KeyboardEventMods) {
     let code = this.Keyboard.getCode(key);
-    return this.executeKey(code);
+    return this.executeKey(code, mods);
   }
 }
 
