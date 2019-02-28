@@ -144,32 +144,34 @@ class GhostKeyboard {
     this.removeSelection();
   }
 
-  private onArrow(code: string): void {
+  private onArrow(code: string, mods?: KeyboardEventMods): void {
     const {startPos, endPos} = this.getCaretPos();
     this.composing = null;
 
     if (code === 'ArrowRight') {
-      if (startPos !== endPos) {
-        this.setCaretPos(endPos);
-      } else {
-        this.setCaretPos(endPos + 1);
+      if (mods && mods.shiftKey) {
+        return this.setCaretPos(startPos, endPos + 1);
       }
-    }
 
-    if (code === 'ArrowLeft') {
       if (startPos !== endPos) {
-        this.setCaretPos(startPos);
+        return this.setCaretPos(endPos);
       } else {
-        this.setCaretPos(startPos - 1);
+        return this.setCaretPos(endPos + 1);
       }
-    }
+    } else if (code === 'ArrowLeft') {
+      if (mods && mods.shiftKey) {
+        return this.setCaretPos(startPos -1, endPos);
+      }
 
-    if (code === 'ArrowUp') {
-      this.setCaretPos(0);
-    }
-
-    if (code === 'ArrowDown') {
-      this.setCaretPos(this.value.length);
+      if (startPos !== endPos) {
+        return this.setCaretPos(startPos);
+      } else {
+        return this.setCaretPos(startPos - 1);
+      }
+    } else if (code === 'ArrowUp') {
+      return this.setCaretPos(0);
+    } else if (code === 'ArrowDown') {
+      return this.setCaretPos(this.value.length);
     }
   }
 
@@ -182,7 +184,7 @@ class GhostKeyboard {
   }
 
   private onInputKeydown(e: KeyboardEvent) {
-    const ALLOWED_CODES = ['Tab'];
+    const ALLOWED_CODES = ['Tab', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'];
     let code = this.Keyboard.getCode(e.code ? e.code : e.which);
 
     if (ALLOWED_CODES.indexOf(code) !== -1) {
@@ -190,6 +192,7 @@ class GhostKeyboard {
     }
 
     e.preventDefault();
+    this.setCaretPos(this.input.selectionStart, this.input.selectionEnd);
     this.input.blur();
     this.event(e);
   }
@@ -263,7 +266,7 @@ class GhostKeyboard {
       case 'ArrowRight':
       case 'ArrowDown':
       case 'ArrowLeft':
-        this.onArrow(code);
+        this.onArrow(code, mods);
         break;
       default:
         let charSet = this.Keyboard.getChar(code, this.mergeMods(mods));
@@ -292,6 +295,11 @@ class GhostKeyboard {
       
       this.updateInput();
       return this.value;
+  }
+
+  setValue(value: string) {
+    this.value = value;
+    this.setCaretPos(0);
   }
 
   event(event: KeyboardEvent) {

@@ -13,7 +13,7 @@ describe('[English] ', function() {
   
   it('Create Keyboard', function() {
     let keyboard = GhostKeyboard({lang: 'en'});
-    expect(keyboard.lang).toBe('en'); 
+    expect(keyboard.lang).toBe('en');
   });
 
   it('Text: I luv U', function() {
