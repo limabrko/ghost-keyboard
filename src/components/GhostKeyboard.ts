@@ -176,7 +176,6 @@ class GhostKeyboard {
 
   private onInputInput(e: any) {
     const {selectionStart, selectionEnd, value} = this.input;
-    console.log(e, selectionStart, selectionEnd, value);
     this.input.value = value.substr(0, selectionStart) + value.substr(selectionEnd, value.length);
     this.input.selectionStart = selectionStart;
     this.input.selectionEnd = selectionStart;
@@ -184,7 +183,7 @@ class GhostKeyboard {
 
   private onCompositionstart(e: CompositionEvent) {
     this.input.blur();
-    this.updateInput();
+    requestAnimationFrame(this.updateInput.bind(this));
   }
 
   private onCompositionend(e: CompositionEvent) {
@@ -251,7 +250,9 @@ class GhostKeyboard {
 
     this.input = input;
     this.input.addEventListener('keydown', this.onInputKeydown.bind(this));
-    // this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
+    if (utils.getBrowser() === 'Safari') {
+      this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
+    }
     this.input.addEventListener('compositionupdate', this.onCompositionstart.bind(this));
     this.input.addEventListener('compositionend', this.onCompositionend.bind(this));
     this.input.addEventListener('mousedown', this.onInputMousedown.bind(this));
@@ -266,7 +267,6 @@ class GhostKeyboard {
     * Blur and Focus is a hack to force update the input.scrollLeft
     * position after the value is insertedBrowser hack 
     */
-   this.input.blur();
     this.input.value = this.value;
     this.input.focus();
     this.input.selectionStart = this.caretPos.startPos;
