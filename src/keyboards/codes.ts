@@ -1,4 +1,7 @@
 const CODES_LIST: {[code: string]: KeyboardCode} = {
+    AltLeft: {code: 'AltLeft', keyCode: 18},
+    Home: {code: 'Home', keyCode: 36},
+    End: {code: 'End', keyCode: 35},
     CapsLock: {code: 'CapsLock', keyCode: 20},
     ShiftLeft: {code: 'ShiftLeft', keyCode: 16},
     ShiftRight: {code: 'ShiftRight', keyCode: 16},

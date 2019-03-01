@@ -26,6 +26,8 @@ just for immediate execution, without reporting to Karma server.
       border: 1px solid #ced4da;
       border-radius: .25rem;
       box-sizing: border-box;
+      margin-bottom: 15px;
+      width: 130px;
     }
   </style>
 </head>
@@ -34,8 +36,14 @@ just for immediate execution, without reporting to Karma server.
     <h1>Ghost Keyboard Debug</h1>
     <div class="container">
       <div class="form-group">
+        <label for="en_input">English Keyboard</label>
+        <input type="text" class="form-control" id="en_input">
+      </div>
+      <div class="form-group">
         <label for="ko_input">Korean Keyboard</label>
-        <input type="text" class="form-control" id="ko_input">
+        <input type="text" class="form-control" id="ko_input"
+        autocomplete="off"
+        autocorrect="off">
       </div>
     </div>
   </div>

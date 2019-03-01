@@ -21,7 +21,6 @@ class Keyboard {
       return key;
     }
 
-    console.warn(`Key ${key} not found.`);
     return null;
   }
 
@@ -33,7 +32,7 @@ class Keyboard {
         compose: this.charsets[code].compose
       };
 
-      if (mods && mods.shiftKey) {
+      if (mods && mods.shiftKey && this.charsets[code].mod) {
         char.char = this.charsets[code].mod;
       }
 

@@ -3,8 +3,6 @@ import MainKeyboard from './Main';
 
 const KEYSET_LIST: CharSet[] = [
   {code: codes.CapsLock.code},
-  {code: codes.ShiftLeft.code},
-  {code: codes.ShiftRight.code},
   {code: codes.Space.code},
   {code: codes.ArrowLeft.code},
   {code: codes.ArrowUp.code},
@@ -12,7 +10,6 @@ const KEYSET_LIST: CharSet[] = [
   {code: codes.ArrowDown.code},
   {code: codes.Backspace.code},
   {code: codes.Delete.code},
-  {code: codes.Tab.code},
   {code: codes.Digit1.code, base: '1', mod: '!'},
   {code: codes.Digit2.code, base: '2', mod: '@'},
   {code: codes.Digit3.code, base: '3', mod: '#'},

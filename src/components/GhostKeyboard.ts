@@ -1,5 +1,7 @@
 import Keyboard from '../keyboards';
+import codes from '../keyboards/codes';
 import IME from '../IME';
+import utils from '../helpers/utils';
 
 const defaultConfig: Config = {
   lang: 'en', 
@@ -82,7 +84,7 @@ class GhostKeyboard {
       return '';
     }
 
-    this.setCaretPos(this.composing.position - this.composing.char.length, this.composing.position);
+    this.setCaretPos(this.composing.position, this.composing.position + this.composing.char.length);
     this.composing = null;
     return this.removeSelection();
   }
@@ -131,10 +133,7 @@ class GhostKeyboard {
       }
 
       let newCompositionChar = this.IME.composer.compose(decomposeChar.slice(0, -1));
-      this.composing = {
-        char: newCompositionChar,
-        position: this.caretPos.startPos + newCompositionChar.length
-      };
+      this.composing = this.createComposition(newCompositionChar, this.caretPos.startPos + (newCompositionChar.length -1));
 
       this.insertChar(this.composing.char);
       return;
@@ -148,7 +147,7 @@ class GhostKeyboard {
     const {startPos, endPos} = this.getCaretPos();
     this.composing = null;
 
-    if (code === 'ArrowRight') {
+    if (code === codes.ArrowDown.code) {
       if (mods && mods.shiftKey) {
         return this.setCaretPos(startPos, endPos + 1);
       }
@@ -158,7 +157,7 @@ class GhostKeyboard {
       } else {
         return this.setCaretPos(endPos + 1);
       }
-    } else if (code === 'ArrowLeft') {
+    } else if (code === codes.ArrowLeft.code) {
       if (mods && mods.shiftKey) {
         return this.setCaretPos(startPos -1, endPos);
       }
@@ -168,33 +167,77 @@ class GhostKeyboard {
       } else {
         return this.setCaretPos(startPos - 1);
       }
-    } else if (code === 'ArrowUp') {
+    } else if (code === codes.ArrowUp.code) {
       return this.setCaretPos(0);
-    } else if (code === 'ArrowDown') {
+    } else if (code === codes.ArrowDown.code) {
       return this.setCaretPos(this.value.length);
     }
   }
 
-  private onCompositionupdate(e: CompositionEvent) {
+  private onInputInput(e: any) {
+    const {selectionStart, selectionEnd, value} = this.input;
+    console.log(e, selectionStart, selectionEnd, value);
+    this.input.value = value.substr(0, selectionStart) + value.substr(selectionEnd, value.length);
+    this.input.selectionStart = selectionStart;
+    this.input.selectionEnd = selectionStart;
+  }
+
+  private onCompositionstart(e: CompositionEvent) {
     this.input.blur();
-    let input = this.input;
-    requestAnimationFrame(() => {
-      input.focus();
+    this.updateInput();
+  }
+
+  private onCompositionend(e: CompositionEvent) {
+    this.composing = null;
+  }
+
+  private updateCaretPosFromInput() {
+    const {startPos, endPos} = this.getCaretPos();
+    let self = this;
+
+    /**
+     * Safari doesn`t update the position instantly
+     */
+    requestAnimationFrame(function() {
+      const {selectionStart, selectionEnd} = self.input;
+      if (startPos !== selectionStart || endPos !== selectionEnd) {
+        self.setCaretPos(selectionStart, selectionEnd);
+        self.composing = null;
+      }
     });
   }
 
-  private onInputKeydown(e: KeyboardEvent) {
-    const ALLOWED_CODES = ['Tab', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'];
+  private isEventShortcut(e: KeyboardEvent): boolean {
+    return (e.metaKey || e.ctrlKey || e.altKey);
+  }
+
+  private onInputKeydown(e: KeyboardEvent): void {
+    const ARROW_CODES = [
+      codes.ArrowUp.code, 
+      codes.ArrowRight.code, 
+      codes.ArrowDown.code, 
+      codes.ArrowLeft.code
+    ];
+
     let code = this.Keyboard.getCode(e.code ? e.code : e.which);
 
-    if (ALLOWED_CODES.indexOf(code) !== -1) {
+    if (!code) {
+      return;
+    }
+
+    if (this.isEventShortcut(e) || ARROW_CODES.indexOf(code) !== -1) {
+      this.updateCaretPosFromInput();
+      this.composing = null;
       return;
     }
 
     e.preventDefault();
-    this.setCaretPos(this.input.selectionStart, this.input.selectionEnd);
-    this.input.blur();
     this.event(e);
+  }
+
+  private onInputMousedown() {
+    this.composing = null;
+    document.addEventListener('mouseup', this.updateCaretPosFromInput.bind(this), { once: true });
   }
 
   private setInput(input: HTMLInputElement): void {
@@ -208,7 +251,10 @@ class GhostKeyboard {
 
     this.input = input;
     this.input.addEventListener('keydown', this.onInputKeydown.bind(this));
-    this.input.addEventListener('compositionstart', this.onCompositionupdate.bind(this));
+    // this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
+    this.input.addEventListener('compositionupdate', this.onCompositionstart.bind(this));
+    this.input.addEventListener('compositionend', this.onCompositionend.bind(this));
+    this.input.addEventListener('mousedown', this.onInputMousedown.bind(this));
   }
 
   private updateInput(): void {
@@ -216,10 +262,23 @@ class GhostKeyboard {
       return;
     }
 
-    this.input.focus();
+    /* 
+    * Blur and Focus is a hack to force update the input.scrollLeft
+    * position after the value is insertedBrowser hack 
+    */
+   this.input.blur();
     this.input.value = this.value;
+    this.input.focus();
     this.input.selectionStart = this.caretPos.startPos;
     this.input.selectionEnd = this.caretPos.endPos;
+
+    let coords = utils.getCaretCoord(this.input, this.caretPos.startPos);
+    let inputViewStart = this.input.scrollLeft;
+    let inputViewEnd = this.input.scrollLeft + this.input.clientWidth;
+
+    if (coords.x < inputViewStart || coords.x > inputViewEnd) {
+      this.input.scrollLeft = coords.x - (this.input.clientWidth / 2);
+    }
   }
 
   private removeSelection(): string {
@@ -248,24 +307,31 @@ class GhostKeyboard {
     return mods;
   }
 
+  private createComposition(char: string, position: number): CharComposition {
+    return {
+      char,
+      position
+    };
+  }
+
   private executeKey(code: string, mods?: KeyboardEventMods): string {
     switch(code) {
-      case 'CapsLock':
+      case codes.CapsLock.code:
         this.capslock = !this.capslock;
         break;
-      case 'Space':
+      case codes.Space.code:
         this.onSpace();
         break;
-      case 'Delete':
+      case codes.Delete.code:
         this.onDelete();
         break;
-      case 'Backspace':
+      case codes.Backspace.code:
         this.onBackspace();
         break;
-      case 'ArrowUp':
-      case 'ArrowRight':
-      case 'ArrowDown':
-      case 'ArrowLeft':
+      case codes.ArrowUp.code:
+      case codes.ArrowRight.code:
+      case codes.ArrowDown.code:
+      case codes.ArrowLeft.code:
         this.onArrow(code, mods);
         break;
       default:
@@ -283,13 +349,7 @@ class GhostKeyboard {
           char = composition;
         }
 
-        if (charSet.compose) {
-          this.composing = {
-            char: char.charAt(char.length -1),
-            position: this.caretPos.startPos + char.length
-          };
-        }
-    
+        this.composing = charSet.compose ? this.createComposition(char.charAt(char.length -1), this.caretPos.startPos + (char.length -1)) : null;
         this.insertChar(char);
       }
       

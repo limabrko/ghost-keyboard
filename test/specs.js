@@ -4,6 +4,11 @@
   }
 
   GhostKeyboard({
+    input: document.getElementById('en_input'),
+    lang: 'en'
+  });
+
+  GhostKeyboard({
     input: document.getElementById('ko_input'),
     lang: 'ko'
   });
