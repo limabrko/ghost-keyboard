@@ -49,6 +49,7 @@ type Config = {
   value?: string;
   caretPos?: CaretPos;
   input?: HTMLInputElement;
+  pattern?: RegExp;
 }
 
 type IMEComposer = {

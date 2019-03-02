@@ -2,6 +2,17 @@ import codes from './codes';
 import MainKeyboard from './Main';
 
 const KEYSET_LIST: CharSet[] = [
+  {code: codes.Backquote.code, base: '`', mod: '~'},
+  {code: codes.Minus.code, base: '-', mod: '_'},
+  {code: codes.Equal.code, base: '=', mod: '+'},
+  {code: codes.BracketLeft.code, base: '[', mod: '{'},
+  {code: codes.BracketRight.code, base: ']', mod: '}'},
+  {code: codes.Backslash.code, base: '\\', mod: '|'},
+  {code: codes.Semicolon.code, base: ';', mod: ':'},
+  {code: codes.Quote.code, base: '\'', mod: '"'},
+  {code: codes.Comma.code, base: ',', mod: '<'},
+  {code: codes.Period.code, base: '.', mod: '>'},
+  {code: codes.Slash.code, base: '/', mod: '?'},
   {code: codes.CapsLock.code},
   {code: codes.Space.code},
   {code: codes.ArrowLeft.code},

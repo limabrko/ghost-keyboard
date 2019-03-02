@@ -22,6 +22,7 @@ class GhostKeyboard {
   private input: HTMLInputElement|null;
   private commands: Command;
   private notPreventCommands: Command;
+  private pattern: RegExp;
   value: string;
   caretPos: CaretPos;
 
@@ -31,6 +32,7 @@ class GhostKeyboard {
     }
 
     this.lang = config.lang;
+    this.pattern = config.pattern;
     this.Keyboard = Keyboard(this.lang);
     this.IME = new IME(config.lang);
     this.setInput(config.input);
@@ -106,6 +108,10 @@ class GhostKeyboard {
   private insertChar(char: string): void {
     let value = this.value,
         len = value.length;
+
+    if (this.pattern && !char.match(this.pattern)) {
+      return;
+    }
 
     this.value = value.substring(0, this.caretPos.startPos) + char + value.substring(this.caretPos.endPos, len);
     this.setCaretPos(this.caretPos.startPos + char.length);
@@ -190,7 +196,6 @@ class GhostKeyboard {
           endPos = direction === 'left' ? endPos : refPos;
           direction = direction ? direction : 'right';
         }
-        console.log(startPos, endPos, direction);
         return this.setCaretPos((mods.shiftKey ? startPos: endPos), endPos, direction);
       }
 
@@ -220,7 +225,6 @@ class GhostKeyboard {
           endPos = direction === 'right' ? refPos : endPos;
           direction = direction ? direction : 'left';
         }
-        console.log(startPos, endPos, direction);
         return this.setCaretPos(startPos, (mods.shiftKey ? endPos: startPos), direction);
       }
 
@@ -269,7 +273,6 @@ class GhostKeyboard {
   }
 
   private onInputInput(e: any) {
-    console.log(e);
     const {selectionStart, selectionEnd, value} = this.input;
     this.input.value = value.substr(0, selectionStart) + value.substr(selectionEnd, value.length);
     this.input.selectionStart = selectionStart;
@@ -309,16 +312,6 @@ class GhostKeyboard {
     return (e.metaKey || e.ctrlKey || e.altKey);
   }
 
-  private onInputKeydown(e: KeyboardEvent): void {
-    let code = this.Keyboard.getCode(e.code ? e.code : e.which);
-
-    if (!code) {
-      return;
-    }
-    
-    this.event(e);
-  }
-
   private onInputMousedown() {
     this.composing = null;
     document.addEventListener('mouseup', this.updateCaretPosFromInput.bind(this), { once: true });
@@ -334,7 +327,8 @@ class GhostKeyboard {
     }
 
     this.input = input;
-    this.input.addEventListener('keydown', this.onInputKeydown.bind(this));
+    this.input.setAttribute('autocomplete', 'off');
+    this.input.addEventListener('keydown', this.event.bind(this));
     if (utils.getBrowser() === 'Safari') {
       this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
     } else {
@@ -429,6 +423,23 @@ class GhostKeyboard {
     return commandFound;
   }
 
+  private filterPattern() {
+    if (!this.pattern) {
+      return;
+    }
+
+    const {startPos, endPos} = this.getCaretPos();
+    let oppositePattern = new RegExp('[^'+this.pattern.source+']', 'g');
+    let beginValue = this.value.substr(0, startPos);
+    let beginCleanValue = beginValue.replace(oppositePattern, '');
+
+    this.value = this.value.replace(oppositePattern, '');
+
+    if (beginValue.length !== beginCleanValue.length) {
+      this.setCaretPos(startPos - (beginValue.length - beginCleanValue.length));
+    }
+  }
+
   private executeKey(code: string, mods?: KeyboardEventMods): string {
     mods = this.normalizeMods(mods);
 
@@ -454,8 +465,8 @@ class GhostKeyboard {
       let composition = this.IME.composer.compose(composingChar + char);
       char = composition;
     }
-
     this.composing = charSet.compose ? this.createComposition(char.charAt(char.length -1), this.caretPos.startPos + (char.length -1)) : null;
+
     this.insertChar(char);
     this.updateInput();
     return this.value;
@@ -473,6 +484,11 @@ class GhostKeyboard {
 
     if (event.type === 'keydown') {
       let code = this.Keyboard.getCode(event.code ? event.code : event.which);
+
+      if (!code) {
+        return;
+      }
+
       let mods = this.normalizeMods(event);
 
       if (event.getModifierState) {

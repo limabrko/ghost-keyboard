@@ -1,4 +1,16 @@
 const CODES_LIST: {[code: string]: KeyboardCode} = {
+    Backquote: {code: 'Backquote', keyCode: 192},
+    Minus: {code: 'Minus', keyCode: 189},
+    Equal: {code: 'Equal', keyCode: 187},
+    BracketLeft: {code: 'BracketLeft', keyCode: 219},
+    BracketRight: {code: 'BracketRight', keyCode: 221},
+    Backslash: {code: 'Backslash', keyCode: 220},
+    Semicolon: {code: 'Semicolon', keyCode: 186},
+    Quote: {code: 'Quote', keyCode: 222},
+    Comma: {code: 'Comma', keyCode: 188},
+    Period: {code: 'Period', keyCode: 190},
+    Slash: {code: 'Slash', keyCode: 191},
+
     AltLeft: {code: 'AltLeft', keyCode: 18},
     Home: {code: 'Home', keyCode: 36},
     End: {code: 'End', keyCode: 35},

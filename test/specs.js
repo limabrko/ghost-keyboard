@@ -9,6 +9,12 @@
   });
 
   GhostKeyboard({
+    input: document.getElementById('en_pattern_input'),
+    lang: 'en',
+    pattern: /[a-zA-Z0-9.@]/
+  });
+
+  GhostKeyboard({
     input: document.getElementById('ko_input'),
     lang: 'ko'
   });
