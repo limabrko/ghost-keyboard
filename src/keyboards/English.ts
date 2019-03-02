@@ -10,6 +10,8 @@ const KEYSET_LIST: CharSet[] = [
   {code: codes.ArrowDown.code},
   {code: codes.Backspace.code},
   {code: codes.Delete.code},
+  {code: codes.Home.code},
+  {code: codes.End.code},
   {code: codes.Digit1.code, base: '1', mod: '!'},
   {code: codes.Digit2.code, base: '2', mod: '@'},
   {code: codes.Digit3.code, base: '3', mod: '#'},

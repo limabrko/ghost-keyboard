@@ -34,3 +34,9 @@ console.log(KoreanKeyboard.value); //사랑
 ```javascript
 npm install
 ```
+
+## To do
+- Add compatibility to textarea input
+- Selection shorcuts
+- Add option of keyboard layout
+- Other keyboard languages

@@ -1,5 +1,14 @@
 type SupportedLangs = 'en' | 'ko';
 
+type Command = {[code: string]: CommandCondition[]};
+
+type CommandCondition = {
+  mods: Mods[];
+  action: CommandAction;
+};
+
+type CommandAction = (code: string, mods: KeyboardEventMods) => void;
+
 type KeyboardCode = {
   code: string;
   keyCode: number;
@@ -30,7 +39,10 @@ type Char = {
 type CaretPos = {
   startPos: number;
   endPos: number;
+  direction: CaretDirection | null;
 }
+
+type CaretDirection = 'left' | 'right';
 
 type Config = {
   lang: SupportedLangs;
@@ -45,10 +57,5 @@ type IMEComposer = {
   decompose: (text: string) => string;
 };
 
-type KeyboardEventMods = {
-  ctrlKey?: boolean;
-  altKey?: boolean;
-  shiftKey?: boolean;
-  metaKey?: boolean;
-  capslock?: boolean;
-};
+type Mods = 'ctrlKey' |  'altKey' | 'shiftKey' | 'metaKey' | 'capslock';
+type KeyboardEventMods = { [mod in Mods]?: boolean };

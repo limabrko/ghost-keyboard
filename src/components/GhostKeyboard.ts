@@ -8,7 +8,8 @@ const defaultConfig: Config = {
   value: '',
   caretPos: {
     startPos: 0,
-    endPos: 0
+    endPos: 0,
+    direction: null
   }
 };
 
@@ -19,6 +20,8 @@ class GhostKeyboard {
   private composing: CharComposition|null;
   private capslock: boolean;
   private input: HTMLInputElement|null;
+  private commands: Command;
+  private notPreventCommands: Command;
   value: string;
   caretPos: CaretPos;
 
@@ -35,24 +38,48 @@ class GhostKeyboard {
     this.value = config.value;
     this.caretPos = {
       startPos: config.caretPos.startPos,
-      endPos: config.caretPos.endPos
+      endPos: config.caretPos.endPos,
+      direction: null
     };
     this.composing = null;
     this.capslock = false;
+    this.commands = {
+      [codes.KeyA.code]: [{mods: ['ctrlKey'], action: this.selectWholeValue.bind(this)}],
+      [codes.Space.code]: [{mods: [], action: this.onSpace.bind(this)}],
+      [codes.Backspace.code]: [{mods: [], action: this.onBackspace.bind(this)}],
+      [codes.Delete.code]: [{mods: [], action: this.onDelete.bind(this)}],
+      [codes.CapsLock.code]: [{mods: [], action: this.onCapsLock.bind(this)}],
+      [codes.ArrowUp.code]: [{mods: [], action: this.onArrow.bind(this)}],
+      [codes.ArrowRight.code]: [{mods: [], action: this.onArrow.bind(this)}],
+      [codes.ArrowDown.code]: [{mods: [], action: this.onArrow.bind(this)}],
+      [codes.ArrowLeft.code]: [{mods: [], action: this.onArrow.bind(this)}],
+      [codes.Home.code]: [{mods: [], action: this.onArrow.bind(this)}],
+      [codes.End.code]: [{mods: [], action: this.onArrow.bind(this)}]
+    };
+    this.notPreventCommands = {[codes.KeyC.code]: [{mods: ['ctrlKey'], action: function(){}}]};
+  }
+
+  private selectWholeValue(): void {
+    this.setCaretPos(0, this.value.length);
   }
 
   private getCaretPos(): CaretPos {
     return {
       startPos: this.caretPos.startPos,
-      endPos: this.caretPos.endPos
-    }
+      endPos: this.caretPos.endPos,
+      direction: this.caretPos.direction
+    };
   }
 
-  private setCaretPos(startPos: number, endPos?: number) {
+  private setCaretPos(startPos: number, endPos?: number, direction?: CaretDirection) {
     const len = this.value.length;
     
     if (startPos < 0) {
       startPos = 0;
+    }
+
+    if (endPos < 0) {
+      endPos = startPos;
     }
 
     if (startPos > len) {
@@ -67,6 +94,7 @@ class GhostKeyboard {
       endPos = len;
     }
 
+    this.caretPos.direction = direction ? direction : null;
     this.caretPos.startPos = startPos;
     this.caretPos.endPos = endPos;
   }
@@ -143,38 +171,73 @@ class GhostKeyboard {
     this.removeSelection();
   }
 
-  private onArrow(code: string, mods?: KeyboardEventMods): void {
-    const {startPos, endPos} = this.getCaretPos();
+  private onArrow(code: string, mods: KeyboardEventMods): void {
+    let {startPos, endPos} = this.getCaretPos();
     this.composing = null;
 
-    if (code === codes.ArrowDown.code) {
-      if (mods && mods.shiftKey) {
-        return this.setCaretPos(startPos, endPos + 1);
+    if (code === codes.ArrowRight.code) {
+      if (mods.ctrlKey) {
+        let valueCut = this.value.substr(endPos, this.value.length);
+        let words = valueCut.match(/[^ .!@#]+/gi);
+        if (words) {
+          endPos = this.value.indexOf(words[0], endPos) + words[0].length;
+        }
+        return this.setCaretPos((mods.shiftKey ? startPos: endPos), endPos);
       }
 
-      if (startPos !== endPos) {
+      if (startPos !== endPos && !mods.shiftKey) {
         return this.setCaretPos(endPos);
       } else {
-        return this.setCaretPos(endPos + 1);
+        endPos += 1;
+        return this.setCaretPos((mods.shiftKey ? startPos: endPos), endPos);
       }
     } else if (code === codes.ArrowLeft.code) {
-      if (mods && mods.shiftKey) {
-        return this.setCaretPos(startPos -1, endPos);
+      if (mods.ctrlKey) {
+        let valueCut = this.value.substr(0, startPos);
+        let words = valueCut.match(/[^ .!@#]+/gi);
+        if (words) {
+          startPos = valueCut.lastIndexOf(words[words.length - 1]);
+        }
+        return this.setCaretPos(startPos, (mods.shiftKey ? endPos: startPos));
       }
 
-      if (startPos !== endPos) {
+      if (startPos !== endPos && !mods.shiftKey) {
         return this.setCaretPos(startPos);
       } else {
-        return this.setCaretPos(startPos - 1);
+        startPos -= 1;
+        return this.setCaretPos(startPos, (mods.shiftKey ? endPos: startPos));
       }
     } else if (code === codes.ArrowUp.code) {
+      //TODO Textarea proper selection
+      if (mods.shiftKey) {
+        return this.setCaretPos(0, endPos);
+      }
+
       return this.setCaretPos(0);
     } else if (code === codes.ArrowDown.code) {
+      //TODO Textarea proper selection
+      if (mods.shiftKey) {
+        return this.setCaretPos(startPos, this.value.length);
+      }
+
+      return this.setCaretPos(this.value.length);
+    } else if (code === codes.Home.code) {
+      if (mods.shiftKey) {
+        return this.setCaretPos(0, endPos);
+      }
+
+      return this.setCaretPos(0);
+    } else if (code === codes.End.code) {
+      if (mods.shiftKey) {
+        return this.setCaretPos(startPos, this.value.length);
+      }
+
       return this.setCaretPos(this.value.length);
     }
   }
 
   private onInputInput(e: any) {
+    console.log(e);
     const {selectionStart, selectionEnd, value} = this.input;
     this.input.value = value.substr(0, selectionStart) + value.substr(selectionEnd, value.length);
     this.input.selectionStart = selectionStart;
@@ -182,6 +245,10 @@ class GhostKeyboard {
   }
 
   private onCompositionstart(e: CompositionEvent) {
+    /* 
+    * Blur is a hack to force the browser 
+    * to cancel the composition 
+    */
     this.input.blur();
     requestAnimationFrame(this.updateInput.bind(this));
   }
@@ -211,26 +278,12 @@ class GhostKeyboard {
   }
 
   private onInputKeydown(e: KeyboardEvent): void {
-    const ARROW_CODES = [
-      codes.ArrowUp.code, 
-      codes.ArrowRight.code, 
-      codes.ArrowDown.code, 
-      codes.ArrowLeft.code
-    ];
-
     let code = this.Keyboard.getCode(e.code ? e.code : e.which);
 
     if (!code) {
       return;
     }
-
-    if (this.isEventShortcut(e) || ARROW_CODES.indexOf(code) !== -1) {
-      this.updateCaretPosFromInput();
-      this.composing = null;
-      return;
-    }
-
-    e.preventDefault();
+    
     this.event(e);
   }
 
@@ -252,9 +305,10 @@ class GhostKeyboard {
     this.input.addEventListener('keydown', this.onInputKeydown.bind(this));
     if (utils.getBrowser() === 'Safari') {
       this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
+    } else {
+      this.input.addEventListener('compositionupdate', this.onCompositionstart.bind(this));
+      this.input.addEventListener('compositionend', this.onCompositionend.bind(this));
     }
-    this.input.addEventListener('compositionupdate', this.onCompositionstart.bind(this));
-    this.input.addEventListener('compositionend', this.onCompositionend.bind(this));
     this.input.addEventListener('mousedown', this.onInputMousedown.bind(this));
   }
 
@@ -263,10 +317,6 @@ class GhostKeyboard {
       return;
     }
 
-    /* 
-    * Blur and Focus is a hack to force update the input.scrollLeft
-    * position after the value is insertedBrowser hack 
-    */
     this.input.value = this.value;
     this.input.focus();
     this.input.selectionStart = this.caretPos.startPos;
@@ -293,18 +343,24 @@ class GhostKeyboard {
     return removedChars;
   }
 
-  private mergeMods(mods: KeyboardEventMods): KeyboardEventMods {
-    if (!mods) {
-      return {
-        capslock: this.capslock
-      };
+  private normalizeMods(mods: KeyboardEventMods): KeyboardEventMods {
+    let modsKey: Mods[] = ['ctrlKey',  'altKey', 'shiftKey', 'metaKey'];
+    let normalizedMods: KeyboardEventMods = {};
+
+    modsKey.forEach((key) => {
+      normalizedMods[key] = false;
+
+      if (mods && mods[key]) {
+        normalizedMods[key] = mods[key];
+      }
+    });
+
+    if (mods && mods.metaKey) {
+      normalizedMods.ctrlKey = true;
     }
 
-    if (!mods.capslock) {
-      mods.capslock = this.capslock;
-    }
-
-    return mods;
+    normalizedMods.capslock = this.capslock;
+    return normalizedMods;
   }
 
   private createComposition(char: string, position: number): CharComposition {
@@ -314,47 +370,63 @@ class GhostKeyboard {
     };
   }
 
-  private executeKey(code: string, mods?: KeyboardEventMods): string {
-    switch(code) {
-      case codes.CapsLock.code:
-        this.capslock = !this.capslock;
-        break;
-      case codes.Space.code:
-        this.onSpace();
-        break;
-      case codes.Delete.code:
-        this.onDelete();
-        break;
-      case codes.Backspace.code:
-        this.onBackspace();
-        break;
-      case codes.ArrowUp.code:
-      case codes.ArrowRight.code:
-      case codes.ArrowDown.code:
-      case codes.ArrowLeft.code:
-        this.onArrow(code, mods);
-        break;
-      default:
-        let charSet = this.Keyboard.getChar(code, this.mergeMods(mods));
+  private onCapsLock() {
+    this.capslock = !this.capslock;
+  }
 
-        if (!charSet || !charSet.char) {
-          break;
+  private getCommandAction(commands: Command, code: string, mods: KeyboardEventMods): CommandAction|null {
+    let commandFound = null;
+
+    if (commands[code]) {
+      let commandConditions = commands[code];
+
+      for (let i = 0; i < commandConditions.length; i++) {
+        let missingMods = commandConditions[i].mods.filter((mod) => {
+          return mods[mod] !== true;
+        });
+
+        if (missingMods.length !== 0) {
+          continue;
         }
 
-        let char = charSet.char;
-
-        if (this.composing && charSet.compose) {
-          let composingChar = this.removeComposing();
-          let composition = this.IME.composer.compose(composingChar + char);
-          char = composition;
-        }
-
-        this.composing = charSet.compose ? this.createComposition(char.charAt(char.length -1), this.caretPos.startPos + (char.length -1)) : null;
-        this.insertChar(char);
+        commandFound = commandConditions[i].action;
+        break;
       }
-      
+    }
+
+    return commandFound;
+  }
+
+  private executeKey(code: string, mods?: KeyboardEventMods): string {
+    mods = this.normalizeMods(mods);
+
+    // First verify if has any command related to the key
+    let commandAction = this.getCommandAction(this.commands, code, mods);
+    if (commandAction) {
+      commandAction(code, mods);
       this.updateInput();
       return this.value;
+    }
+
+    // If no command found, insert the character based on the virtual keyboard
+    let charSet = this.Keyboard.getChar(code, mods);
+
+    if (!charSet || !charSet.char) {
+      return this.value;
+    }
+
+    let char = charSet.char;
+
+    if (this.composing && charSet.compose) {
+      let composingChar = this.removeComposing();
+      let composition = this.IME.composer.compose(composingChar + char);
+      char = composition;
+    }
+
+    this.composing = charSet.compose ? this.createComposition(char.charAt(char.length -1), this.caretPos.startPos + (char.length -1)) : null;
+    this.insertChar(char);
+    this.updateInput();
+    return this.value;
   }
 
   setValue(value: string) {
@@ -369,18 +441,19 @@ class GhostKeyboard {
 
     if (event.type === 'keydown') {
       let code = this.Keyboard.getCode(event.code ? event.code : event.which);
-      let mods: KeyboardEventMods = {
-        metaKey: event.metaKey,
-        ctrlKey: event.ctrlKey,
-        shiftKey: event.shiftKey,
-        altKey: event.altKey,
-      };
+      let mods = this.normalizeMods(event);
 
       if (event.getModifierState) {
         this.capslock = event.getModifierState('CapsLock');
         mods.capslock = this.capslock;
       }
-
+      
+      let commandAction = this.getCommandAction(this.notPreventCommands, code, mods);
+      if (commandAction) {
+        return;
+      }
+      
+      event.preventDefault();
       return this.executeKey(code, mods);
     }
   }
