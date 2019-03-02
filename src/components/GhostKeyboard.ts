@@ -49,12 +49,12 @@ class GhostKeyboard {
       [codes.Backspace.code]: [{mods: [], action: this.onBackspace.bind(this)}],
       [codes.Delete.code]: [{mods: [], action: this.onDelete.bind(this)}],
       [codes.CapsLock.code]: [{mods: [], action: this.onCapsLock.bind(this)}],
-      [codes.ArrowUp.code]: [{mods: [], action: this.onArrow.bind(this)}],
-      [codes.ArrowRight.code]: [{mods: [], action: this.onArrow.bind(this)}],
-      [codes.ArrowDown.code]: [{mods: [], action: this.onArrow.bind(this)}],
-      [codes.ArrowLeft.code]: [{mods: [], action: this.onArrow.bind(this)}],
-      [codes.Home.code]: [{mods: [], action: this.onArrow.bind(this)}],
-      [codes.End.code]: [{mods: [], action: this.onArrow.bind(this)}]
+      [codes.ArrowUp.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
+      [codes.ArrowRight.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
+      [codes.ArrowDown.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
+      [codes.ArrowLeft.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
+      [codes.Home.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
+      [codes.End.code]: [{mods: [], action: this.onMoveCaret.bind(this)}]
     };
     this.notPreventCommands = {[codes.KeyC.code]: [{mods: ['ctrlKey'], action: function(){}}]};
   }
@@ -78,15 +78,19 @@ class GhostKeyboard {
       startPos = 0;
     }
 
-    if (endPos < 0) {
-      endPos = startPos;
-    }
-
     if (startPos > len) {
       startPos = len;
     }
-    
+
     if (endPos === undefined) {
+      endPos = startPos;
+    }
+
+    if (startPos > endPos) {
+      startPos = endPos;
+    }
+
+    if (endPos < 0) {
       endPos = startPos;
     }
 
@@ -94,7 +98,7 @@ class GhostKeyboard {
       endPos = len;
     }
 
-    this.caretPos.direction = direction ? direction : null;
+    this.caretPos.direction = direction && (startPos !== endPos) ? direction : null;
     this.caretPos.startPos = startPos;
     this.caretPos.endPos = endPos;
   }
@@ -171,42 +175,70 @@ class GhostKeyboard {
     this.removeSelection();
   }
 
-  private onArrow(code: string, mods: KeyboardEventMods): void {
-    let {startPos, endPos} = this.getCaretPos();
+  private onMoveCaret(code: string, mods: KeyboardEventMods): void {
+    let {startPos, endPos, direction} = this.getCaretPos();
     this.composing = null;
 
     if (code === codes.ArrowRight.code) {
       if (mods.ctrlKey) {
-        let valueCut = this.value.substr(endPos, this.value.length);
+        let refPos = direction === 'left' ? startPos : endPos;
+        let valueCut = this.value.substr(refPos, this.value.length);
         let words = valueCut.match(/[^ .!@#]+/gi);
         if (words) {
-          endPos = this.value.indexOf(words[0], endPos) + words[0].length;
+          refPos = this.value.indexOf(words[0], refPos) + words[0].length;
+          startPos = direction === 'left' ? refPos : startPos;
+          endPos = direction === 'left' ? endPos : refPos;
+          direction = direction ? direction : 'right';
         }
-        return this.setCaretPos((mods.shiftKey ? startPos: endPos), endPos);
+        console.log(startPos, endPos, direction);
+        return this.setCaretPos((mods.shiftKey ? startPos: endPos), endPos, direction);
       }
 
       if (startPos !== endPos && !mods.shiftKey) {
         return this.setCaretPos(endPos);
+      }
+
+      if (mods.shiftKey) {
+        startPos = direction === 'left' ? startPos + 1 : startPos;
+        endPos = direction === 'left' ? endPos : endPos + 1;
+        direction = direction ? direction : 'right';
       } else {
         endPos += 1;
-        return this.setCaretPos((mods.shiftKey ? startPos: endPos), endPos);
+        startPos = endPos;
+        direction = null;
       }
+      return this.setCaretPos(startPos, endPos, direction);
+
     } else if (code === codes.ArrowLeft.code) {
       if (mods.ctrlKey) {
-        let valueCut = this.value.substr(0, startPos);
+        let refPos = direction === 'right' ? endPos : startPos;
+        let valueCut = this.value.substr(0, refPos);
         let words = valueCut.match(/[^ .!@#]+/gi);
         if (words) {
-          startPos = valueCut.lastIndexOf(words[words.length - 1]);
+          refPos = valueCut.lastIndexOf(words[words.length - 1]);
+          startPos = direction === 'right' ? startPos : refPos;
+          endPos = direction === 'right' ? refPos : endPos;
+          direction = direction ? direction : 'left';
         }
-        return this.setCaretPos(startPos, (mods.shiftKey ? endPos: startPos));
+        console.log(startPos, endPos, direction);
+        return this.setCaretPos(startPos, (mods.shiftKey ? endPos: startPos), direction);
       }
 
       if (startPos !== endPos && !mods.shiftKey) {
         return this.setCaretPos(startPos);
+      }
+
+      if (mods.shiftKey) {
+        startPos = direction === 'right' ? startPos : startPos - 1;
+        endPos = direction === 'right' ? endPos - 1 : endPos;
+        direction = direction ? direction : 'left';
       } else {
         startPos -= 1;
-        return this.setCaretPos(startPos, (mods.shiftKey ? endPos: startPos));
+        endPos = startPos;
+        direction = null;
       }
+      return this.setCaretPos(startPos, endPos, direction);
+
     } else if (code === codes.ArrowUp.code) {
       //TODO Textarea proper selection
       if (mods.shiftKey) {

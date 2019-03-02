@@ -10,6 +10,7 @@ const getCaretCoord = (input: HTMLInputElement, caretPos: number) => {
   const div = document.createElement('div');
   const inputStyle = getComputedStyle(input);
 
+  // @ts-ignore
   for (let prop of inputStyle) {
     div.style[prop] = inputStyle[prop];
   }
@@ -49,18 +50,14 @@ function getBrowser(): string | null {
 
   if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1) {
     return 'Opera';
-  }
-  else if (navigator.userAgent.indexOf("Chrome") != -1) {
+  } else if (navigator.userAgent.indexOf("Chrome") != -1) {
     return 'Chrome';
-  }
-  else if (navigator.userAgent.indexOf("Safari") != -1) {
+  } else if (navigator.userAgent.indexOf("Safari") != -1) {
     return 'Safari';
-  }
-  else if (navigator.userAgent.indexOf("Firefox") != -1) {
+  } else if (navigator.userAgent.indexOf("Firefox") != -1) {
     return 'Firefox';
-  }
-  else if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode === true)) //IF IE > 10
-  {
+  // @ts-ignore
+  } else if ((navigator.userAgent.indexOf("MSIE") != -1) || (!!document.documentMode === true)) {
     return 'IE';
   }
 
