@@ -1,5 +1,4 @@
 # Ghost Keyboard
-
 Simulate any keyboard behavior of any keyboard language. 
 Using Ghost Keyboard you can imitates an user typing and get the output value. 
 **No dependency**
@@ -34,22 +33,23 @@ Ghost Keyboard also provide an API if you want to use without a real input.
 ```javascript
 let GhostKeyboard = require('ghost-require');
 
+let EnglishKeyboard = GhostKeyboard({lang: 'ko'});
+keyboard.type('KeyI', {shiftKey: true}); // "I"
+keyboard.type('Space'); // "I "
+keyboard.type('KeyL'); // "I l"
+keyboard.type('KeyU'); // "I lu"
+keyboard.type('KeyV'); // "I luv"
+keyboard.type('Space'); // "I luv "
+keyboard.type('CapsLock'); // "I luv "
+keyboard.type('KeyU'); // "I luv U"
+
 let KoreanKeyboard = GhostKeyboard({lang: 'ko'});
-
-KoreanKeyboard.type('KeyT');
-console.log(KoreanKeyboard.value); //ㅅ
-
-KoreanKeyboard.type('KeyK');
-console.log(KoreanKeyboard.value); //사
-
-KoreanKeyboard.type('KeyF');
-console.log(KoreanKeyboard.value); //살
-
-KoreanKeyboard.type('KeyK');
-console.log(KoreanKeyboard.value); //사라
-
-KoreanKeyboard.type('KeyD');
-console.log(KoreanKeyboard.value); //사랑
+KoreanKeyboard.type('KeyT'); //ㅅ
+KoreanKeyboard.type('KeyK'); //사
+KoreanKeyboard.type('KeyF'); //살
+KoreanKeyboard.type('KeyK'); //사라
+KoreanKeyboard.type('KeyD'); //사랑
+console.log(KoreanKeyboard.value);
 ```
 
 ## Installation
