@@ -1,6 +1,10 @@
 # Ghost Keyboard
 
-Simulate any keyboard behavior of any keyboard language. Using Ghost Keyboard you can imitates an user typing and get the output value. **No dependency**
+Simulate any keyboard behavior of any keyboard language. 
+Using Ghost Keyboard you can imitates an user typing and get the output value. 
+**No dependency**
+
+See the [DEMO PAGE](https://fill-lima.github.io/ghost-keyboard/)
 
 ### Languages
 - English (en)
@@ -54,9 +58,9 @@ console.log(KoreanKeyboard.value); //사랑
 npm install
 ```
 
-`npm start` Webpack
-`npm run dev` Webpack + Test runner
-`npm run build` Webpack: production mode
+- `npm start` Webpack
+- `npm run dev` Webpack + Test runner
+- `npm run build` Webpack: production mode
 
 ## To do
 - Add compatibility to textarea input
