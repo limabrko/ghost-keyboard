@@ -40,7 +40,7 @@ Ghost Keyboard also provide an API if you want to use without a real input.
 ```javascript
 let GhostKeyboard = require('ghost-require');
 
-let EnglishKeyboard = GhostKeyboard({lang: 'ko'});
+let EnglishKeyboard = GhostKeyboard({lang: 'en'});
 keyboard.type('KeyI', {shiftKey: true}); // "I"
 keyboard.type('Space'); // "I "
 keyboard.type('KeyL'); // "I l"
