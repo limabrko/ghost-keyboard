@@ -81,6 +81,12 @@ To develop and check tests at same time.
 $ npm run dev
 ```
 
+Build it before push.
+
+```shell
+$ npm run build
+```
+
 To contribute, please fork GhostKeyboard, add your patch and tests for it (in the `test/` folder) and submit a pull request.
 
 ## To do
