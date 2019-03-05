@@ -62,12 +62,7 @@ console.log(KoreanKeyboard.value);
 ## Development
 You will need `Node.js` installed on your system.
 
-To develop, Install dependencies, Get the code:
-```shell
-$ git https://github.com/fill-lima/ghost-keyboard.git
-$ cd ghost-keyboard # Into the directory
-$ npm install       # Install dependencies
-```
+Fork the project and run `npm install` to install the dependencies.
 
 To develop, run the self-reloading:
 
