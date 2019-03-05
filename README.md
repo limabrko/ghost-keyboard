@@ -29,7 +29,7 @@ GhostKeyboard({
     lang: 'en',
     value: '',
     input: document.getElementById('input_id'),
-    pattern: /[a-zA-Z0-9.@]/
+    pattern: /[a-zA-Z0-9.@]/g
 });
 ```
 
