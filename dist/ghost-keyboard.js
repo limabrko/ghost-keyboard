@@ -340,8 +340,13 @@ var GhostKeyboard = /** @class */ (function () {
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].ArrowLeft.code] = [{ mods: [], action: this.onMoveCaret.bind(this) }],
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].Home.code] = [{ mods: [], action: this.onMoveCaret.bind(this) }],
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].End.code] = [{ mods: [], action: this.onMoveCaret.bind(this) }],
+            _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyC.code] = [{ mods: ['ctrlKey'], action: function () { } }],
+            _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyV.code] = [{ mods: ['ctrlKey'], action: this.onPaste.bind(this) }],
             _a);
-        this.notPreventCommands = (_b = {}, _b[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyC.code] = [{ mods: ['ctrlKey'], action: function () { } }], _b);
+        this.notPreventCommands = (_b = {},
+            _b[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyC.code] = this.commands[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyC.code],
+            _b[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyV.code] = this.commands[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyV.code],
+            _b);
     }
     GhostKeyboard.prototype.selectWholeValue = function () {
         this.setCaretPos(0, this.value.length);
@@ -364,6 +369,9 @@ var GhostKeyboard = /** @class */ (function () {
         if (endPos === undefined) {
             endPos = startPos;
         }
+        if (endPos < 0) {
+            endPos = 0;
+        }
         if (startPos > endPos) {
             startPos = endPos;
         }
@@ -379,11 +387,16 @@ var GhostKeyboard = /** @class */ (function () {
     };
     GhostKeyboard.prototype.insertChar = function (char) {
         var value = this.value, len = value.length;
-        if (this.pattern && !char.match(this.pattern)) {
-            return;
+        if (this.pattern) {
+            var matchedChars = char.match(this.pattern);
+            if (!matchedChars) {
+                return;
+            }
+            char = matchedChars.join('');
         }
         this.value = value.substring(0, this.caretPos.startPos) + char + value.substring(this.caretPos.endPos, len);
         this.setCaretPos(this.caretPos.startPos + char.length);
+        this.updateInput();
     };
     GhostKeyboard.prototype.removeComposing = function () {
         if (!this.composing) {
@@ -552,8 +565,9 @@ var GhostKeyboard = /** @class */ (function () {
             }
         });
     };
-    GhostKeyboard.prototype.isEventShortcut = function (e) {
-        return (e.metaKey || e.ctrlKey || e.altKey);
+    GhostKeyboard.prototype.onPaste = function (e) {
+        e.preventDefault();
+        this.insertChar(_helpers_utils__WEBPACK_IMPORTED_MODULE_3__["default"].getClipboardText(e));
     };
     GhostKeyboard.prototype.onInputMousedown = function () {
         this.composing = null;
@@ -566,9 +580,16 @@ var GhostKeyboard = /** @class */ (function () {
         if (typeof input !== 'object' || !(input instanceof HTMLInputElement)) {
             throw new Error('HTMLInputElement is required');
         }
+        // @ts-ignore
+        if (input.GhostKeyboard !== undefined) {
+            throw new Error('HTMLInputElement has already Ghost keyboard attached.');
+        }
+        // @ts-ignore
+        input.GhostKeyboard = true;
         this.input = input;
         this.input.setAttribute('autocomplete', 'off');
         this.input.addEventListener('keydown', this.event.bind(this));
+        this.input.addEventListener('paste', this.onPaste.bind(this));
         if (_helpers_utils__WEBPACK_IMPORTED_MODULE_3__["default"].getBrowser() === 'Safari') {
             this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
         }
@@ -678,7 +699,6 @@ var GhostKeyboard = /** @class */ (function () {
         }
         this.composing = charSet.compose ? this.createComposition(char.charAt(char.length - 1), this.caretPos.startPos + (char.length - 1)) : null;
         this.insertChar(char);
-        this.updateInput();
         return this.value;
     };
     GhostKeyboard.prototype.setValue = function (value) {
@@ -730,7 +750,7 @@ __webpack_require__.r(__webpack_exports__);
 /**
  * Get the x, y coordinates of a caret position inside a input
  */
-var getCaretCoord = function (input, caretPos) {
+function getCaretCoord(input, caretPos) {
     var inputX = input.offsetLeft, inputY = input.offsetTop;
     var div = document.createElement('div');
     var inputStyle = getComputedStyle(input);
@@ -759,7 +779,7 @@ var getCaretCoord = function (input, caretPos) {
         x: offsetLeft,
         y: offsetTop,
     };
-};
+}
 function getBrowser() {
     if (!navigator) {
         return null;
@@ -782,9 +802,22 @@ function getBrowser() {
     }
     return null;
 }
+function getClipboardText(e) {
+    var clipboardText = '';
+    if (e.clipboardData && e.clipboardData.getData) {
+        clipboardText = e.clipboardData.getData('text/plain');
+    }
+    // @ts-ignore // IE10 Verify
+    if (window.clipboardData && window.clipboardData.getData) {
+        // @ts-ignore // IE10 has this method
+        clipboardText = window.clipboardData.getData('Text');
+    }
+    return clipboardText;
+}
 var utils = {
     getCaretCoord: getCaretCoord,
-    getBrowser: getBrowser
+    getBrowser: getBrowser,
+    getClipboardText: getClipboardText
 };
 /* harmony default export */ __webpack_exports__["default"] = (utils);
 
@@ -795,17 +828,19 @@ var utils = {
 /*!**********************!*\
   !*** ./src/index.ts ***!
   \**********************/
-/*! exports provided: default */
+/*! exports provided: GhostKeyboard, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "GhostKeyboard", function() { return GhostKeyboard; });
 /* harmony import */ var _components_GhostKeyboard__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/GhostKeyboard */ "./src/components/GhostKeyboard.ts");
 
-function createGhostKeyboard(config) {
+function GhostKeyboard(config) {
     return new _components_GhostKeyboard__WEBPACK_IMPORTED_MODULE_0__["default"](config);
 }
-/* harmony default export */ __webpack_exports__["default"] = (createGhostKeyboard);
+
+/* harmony default export */ __webpack_exports__["default"] = (GhostKeyboard);
 
 
 /***/ }),

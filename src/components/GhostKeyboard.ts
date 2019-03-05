@@ -56,9 +56,14 @@ class GhostKeyboard {
       [codes.ArrowDown.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
       [codes.ArrowLeft.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
       [codes.Home.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
-      [codes.End.code]: [{mods: [], action: this.onMoveCaret.bind(this)}]
+      [codes.End.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
+      [codes.KeyC.code]: [{mods: ['ctrlKey'], action: function(){}}],
+      [codes.KeyV.code]: [{mods: ['ctrlKey'], action: this.onPaste.bind(this)}]
     };
-    this.notPreventCommands = {[codes.KeyC.code]: [{mods: ['ctrlKey'], action: function(){}}]};
+    this.notPreventCommands = {
+      [codes.KeyC.code]: this.commands[codes.KeyC.code],
+      [codes.KeyV.code]: this.commands[codes.KeyV.code]
+    };
   }
 
   private selectWholeValue(): void {
@@ -88,6 +93,10 @@ class GhostKeyboard {
       endPos = startPos;
     }
 
+    if (endPos < 0) {
+      endPos = 0;
+    }
+
     if (startPos > endPos) {
       startPos = endPos;
     }
@@ -109,12 +118,17 @@ class GhostKeyboard {
     let value = this.value,
         len = value.length;
 
-    if (this.pattern && !char.match(this.pattern)) {
-      return;
+    if (this.pattern) {
+      let matchedChars = char.match(this.pattern);
+      if (!matchedChars) {
+        return;
+      }
+      char = matchedChars.join('');
     }
 
     this.value = value.substring(0, this.caretPos.startPos) + char + value.substring(this.caretPos.endPos, len);
     this.setCaretPos(this.caretPos.startPos + char.length);
+    this.updateInput();
   }
 
   private removeComposing(): string {
@@ -308,8 +322,9 @@ class GhostKeyboard {
     });
   }
 
-  private isEventShortcut(e: KeyboardEvent): boolean {
-    return (e.metaKey || e.ctrlKey || e.altKey);
+  private onPaste(e: ClipboardEvent) {
+    e.preventDefault();
+    this.insertChar(utils.getClipboardText(e));
   }
 
   private onInputMousedown() {
@@ -326,9 +341,18 @@ class GhostKeyboard {
       throw new Error('HTMLInputElement is required');
     }
 
+    // @ts-ignore
+    if (input.GhostKeyboard !== undefined) {
+      throw new Error('HTMLInputElement has already Ghost keyboard attached.');
+    }
+    
+    // @ts-ignore
+    input.GhostKeyboard = true;
+
     this.input = input;
     this.input.setAttribute('autocomplete', 'off');
     this.input.addEventListener('keydown', this.event.bind(this));
+    this.input.addEventListener('paste', this.onPaste.bind(this));
     if (utils.getBrowser() === 'Safari') {
       this.input.addEventListener('beforeinput', this.onInputInput.bind(this));
     } else {
@@ -468,7 +492,6 @@ class GhostKeyboard {
     this.composing = charSet.compose ? this.createComposition(char.charAt(char.length -1), this.caretPos.startPos + (char.length -1)) : null;
 
     this.insertChar(char);
-    this.updateInput();
     return this.value;
   }
 

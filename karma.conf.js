@@ -17,8 +17,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      //{pattern: './test/static/debug.html', watched: false},
-      {pattern: './dist/*.js', watched: true},
+      {pattern: './dist/ghost-keyboard.js', watched: true},
       {pattern: './test/*.js', watched: true}
     ],
 

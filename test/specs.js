@@ -1,24 +1,23 @@
-(function(window) {
-  if (!window || !window.document) {
-    return;
-  }
+function copyToClipboard(str) {
+  const el = document.createElement('textarea');
+  el.value = str;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.left = '-9999px';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}
 
-  GhostKeyboard({
-    input: document.getElementById('en_input'),
-    lang: 'en'
+describe('[Commands] ', function() {
+  it('Paste', function() {
+    let keyboard = GhostKeyboard({lang: 'en'});
+    copyToClipboard('I love you');
+    keyboard.type('KeyV', {ctrlKey: true});
+    expect(keyboard.value).toBe('I love you');
   });
-
-  GhostKeyboard({
-    input: document.getElementById('en_pattern_input'),
-    lang: 'en',
-    pattern: /[a-zA-Z0-9.@]/
-  });
-
-  GhostKeyboard({
-    input: document.getElementById('ko_input'),
-    lang: 'ko'
-  });
-})(this);
+});
 
 describe('[English] ', function() {
   
@@ -143,5 +142,104 @@ describe('[Korean]', function() {
 
     keyboard.type('Backspace');
     expect(keyboard.value).toBe('');
+  });
+
+  describe('[MoveCursor]', function() {
+    it('Move [mods: none]', function() {
+      let keyboard = GhostKeyboard({lang: 'en', value: 'I love you'});
+      keyboard.type('ArrowRight');
+      expect(keyboard.caretPos.startPos).toBe(1);
+      expect(keyboard.caretPos.endPos).toBe(1);
+
+      keyboard.type('ArrowDown');
+      expect(keyboard.caretPos.startPos).toBe(10);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowRight');
+      expect(keyboard.caretPos.startPos).toBe(10);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowLeft');
+      expect(keyboard.caretPos.startPos).toBe(9);
+      expect(keyboard.caretPos.endPos).toBe(9);
+
+      keyboard.type('ArrowUp');
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(0);
+
+      keyboard.type('ArrowLeft');
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(0);
+    });
+
+    it('Move [mods: shiftKey]', function() {
+      let keyboard = GhostKeyboard({lang: 'en', value: 'I love you'});
+      keyboard.type('ArrowRight', {shiftKey: true});
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(1);
+
+      keyboard.type('ArrowRight');
+      expect(keyboard.caretPos.startPos).toBe(1);
+      expect(keyboard.caretPos.endPos).toBe(1);
+
+      keyboard.type('ArrowDown', {shiftKey: true});
+      expect(keyboard.caretPos.startPos).toBe(1);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowRight', {shiftKey: true});
+      expect(keyboard.caretPos.startPos).toBe(1);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowRight');
+      expect(keyboard.caretPos.startPos).toBe(10);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowLeft', {shiftKey: true});
+      expect(keyboard.caretPos.startPos).toBe(9);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowLeft');
+      expect(keyboard.caretPos.startPos).toBe(9);
+      expect(keyboard.caretPos.endPos).toBe(9);
+
+      keyboard.type('ArrowUp', {shiftKey: true});
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(9);
+
+      keyboard.type('ArrowLeft', {shiftKey: true});
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(9);
+
+      keyboard.type('ArrowLeft');
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(0);
+    });
+
+    it('Move [mods: ctrlKey]', function() {
+      let keyboard = GhostKeyboard({lang: 'en', value: 'I love you'});
+      keyboard.type('ArrowRight', {ctrlKey: true});
+      expect(keyboard.caretPos.startPos).toBe(1);
+      expect(keyboard.caretPos.endPos).toBe(1);
+
+      keyboard.type('ArrowRight', {ctrlKey: true});
+      expect(keyboard.caretPos.startPos).toBe(6);
+      expect(keyboard.caretPos.endPos).toBe(6);
+
+      keyboard.type('ArrowRight', {ctrlKey: true});
+      expect(keyboard.caretPos.startPos).toBe(10);
+      expect(keyboard.caretPos.endPos).toBe(10);
+
+      keyboard.type('ArrowLeft', {ctrlKey: true});
+      expect(keyboard.caretPos.startPos).toBe(7);
+      expect(keyboard.caretPos.endPos).toBe(7);
+
+      keyboard.type('ArrowLeft', {ctrlKey: true});
+      expect(keyboard.caretPos.startPos).toBe(2);
+      expect(keyboard.caretPos.endPos).toBe(2);
+
+      keyboard.type('ArrowLeft', {ctrlKey: true});
+      expect(keyboard.caretPos.startPos).toBe(0);
+      expect(keyboard.caretPos.endPos).toBe(0);
+    });
   });
 });

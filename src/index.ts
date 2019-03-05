@@ -1,8 +1,8 @@
-import GhostKeyboard from './components/GhostKeyboard';
+import GKeyboard from './components/GhostKeyboard';
 
-function createGhostKeyboard(config: Config) {
-  return new GhostKeyboard(config);
+function GhostKeyboard(config: Config) {
+  return new GKeyboard(config);
 }
 
-export default createGhostKeyboard;
-  
+export {GhostKeyboard};
+export default GhostKeyboard;

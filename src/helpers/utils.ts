@@ -1,7 +1,7 @@
 /**
  * Get the x, y coordinates of a caret position inside a input
  */
-const getCaretCoord = (input: HTMLInputElement, caretPos: number) => {
+function getCaretCoord(input: HTMLInputElement, caretPos: number) {
   const {
     offsetLeft: inputX,
     offsetTop: inputY,
@@ -64,9 +64,25 @@ function getBrowser(): string | null {
   return null;
 }
 
+function getClipboardText(e: ClipboardEvent): string {
+  let clipboardText = '';
+    if(e.clipboardData && e.clipboardData.getData) {
+      clipboardText = e.clipboardData.getData('text/plain');
+    }
+
+    // @ts-ignore // IE10 Verify
+    if (window.clipboardData && window.clipboardData.getData) {
+      // @ts-ignore // IE10 has this method
+        clipboardText = window.clipboardData.getData('Text');
+    }
+
+    return clipboardText;
+}
+
 const utils = {
   getCaretCoord,
-  getBrowser
+  getBrowser,
+  getClipboardText
 };
 
 export default utils;
