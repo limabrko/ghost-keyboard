@@ -33,7 +33,7 @@ GhostKeyboard({
 });
 ```
 
-Or manually download and link **ghost-keyboard.min.js** in your HTML, It can also be downloaded via [UNPKG](https://unpkg.com/ghost-keyboar/dist/ghost-keyboard.min.js):
+Or manually download and link **ghost-keyboard.min.js** in your HTML, It can also be downloaded via [UNPKG](https://unpkg.com/ghost-keyboard/dist/ghost-keyboard.min.js):
 
 ### API
 Ghost Keyboard also provide an API if you want to use without a real input.
