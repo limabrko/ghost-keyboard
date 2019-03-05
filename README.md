@@ -1,6 +1,7 @@
 # Ghost Keyboard
 Simulate any keyboard behavior of any keyboard language. 
-Using Ghost Keyboard you can imitates an user typing and get the output value. 
+Using Ghost Keyboard you can imitates an user typing and get the output value.
+
 **No dependency** | **Browser compatibility: IE10+, Chrome, Safari, Firefox**
 
 See the [DEMO PAGE](https://fill-lima.github.io/ghost-keyboard/)
@@ -90,4 +91,4 @@ To contribute, please fork GhostKeyboard, add your patch and tests for it (in th
 
 ## License
 
-[MIT © Felipe Lima](./LICENSE)
+[MIT © Felipe Lima](./LICENSE.md)
