@@ -66,17 +66,18 @@ function getBrowser(): string | null {
 
 function getClipboardText(e: ClipboardEvent): string {
   let clipboardText = '';
-    if(e.clipboardData && e.clipboardData.getData) {
-      clipboardText = e.clipboardData.getData('text/plain');
-    }
 
-    // @ts-ignore // IE10 Verify
-    if (window.clipboardData && window.clipboardData.getData) {
-      // @ts-ignore // IE10 has this method
-        clipboardText = window.clipboardData.getData('Text');
-    }
+  if(e.clipboardData && e.clipboardData.getData) {
+    clipboardText = e.clipboardData.getData('text/plain');
+  }
 
-    return clipboardText;
+  // @ts-ignore // IE10 Verify
+  if (window.clipboardData && window.clipboardData.getData) {
+    // @ts-ignore // IE10 has this method
+      clipboardText = window.clipboardData.getData('Text');
+  }
+
+  return clipboardText;
 }
 
 const utils = {
