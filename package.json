@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack --watch",
     "dev": "concurrently \"webpack --progress --colors --watch\" \"karma start --colors\"",
-    "test": "karma start",
+    "test": "karma start --single-run",
     "build": "NODE_ENV=production webpack --config webpack.config.js"
   },
   "author": {
