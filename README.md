@@ -11,11 +11,14 @@
 
 **No dependency** | **Browser compatibility: IE10+, Chrome, Safari, Firefox**
 
-See the [DEMO PAGE](https://fill-lima.github.io/ghost-keyboard/)
+
+---
+
+Check out the [DEMO PAGE](https://fill-lima.github.io/ghost-keyboard/).
 
 ### Languages
-- English (en)
-- Korean (ko)
+- English (en) :us:
+- Korean (ko) :kr:
 
 ### Options
 - `lang` Language abbreviation.
