@@ -1,10 +1,10 @@
 # Ghost Keyboard
-<p align="center">
-  <a href="https://travis-ci.org/fill-lima/ghost-keyboard"><img src="https://travis-ci.org/fill-lima/ghost-keyboard.svg?branch=master" alt="Travis CI"></a>
-</p>
+
+[![image](https://travis-ci.org/fill-lima/ghost-keyboard.svg?branch=master)](https://travis-ci.org/fill-lima/ghost-keyboard)
+
 ---
-Simulate any keyboard behavior of any keyboard language. 
-Using Ghost Keyboard you can imitates an user typing and get the output value.
+
+> Simulate any keyboard behavior of any keyboard language. Using Ghost Keyboard you can imitates an user typing and get the output value.
 
 **No dependency** | **Browser compatibility: IE10+, Chrome, Safari, Firefox**
 
