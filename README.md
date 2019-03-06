@@ -1,8 +1,13 @@
 # Ghost Keyboard
 
 [![image](https://travis-ci.org/fill-lima/ghost-keyboard.svg?branch=master)](https://travis-ci.org/fill-lima/ghost-keyboard)
+[![image](https://badgen.net/npm/v/ghost-keyboard)](https://www.npmjs.com/package/ghost-keyboard)
+[![image](https://badgen.net/npm/license/ghost-keyboard)](https://github.com/fill-lima/ghost-keyboard/blob/master/LICENSE.md)
 
-> Simulate any keyboard behavior of any keyboard language. Using Ghost Keyboard you can imitates an user typing and get the output value.
+> Simulate any keyboard behavior of any keyboard language. Using Ghost Keyboard you can: 
+
+- Imitates an input typing and get the output value.
+- Convert the typing on a [HTMLInputElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement) to another language even not installed on OS.
 
 **No dependency** | **Browser compatibility: IE10+, Chrome, Safari, Firefox**
 
