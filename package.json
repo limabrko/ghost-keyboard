@@ -11,12 +11,17 @@
   },
   "author": {
     "name": "Felipe Lima",
-    "url": "https://github.com/fill-lima"
+    "url": "https://github.com/fill-lima/ghost-keyboard"
   },
   "keywords": [
-    "keyboard"
+    "keyboard",
+    "virtual"
   ],
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fill-lima/ghost-keyboard.git"
+  },
   "devDependencies": {
     "concurrently": "^4.1.0",
     "karma": "^4.0.0",
