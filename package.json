@@ -1,6 +1,6 @@
 {
   "name": "ghost-keyboard",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Simulate any keyboard behaviour even not installed",
   "main": "dist/ghost-keyboard.js",
   "scripts": {
