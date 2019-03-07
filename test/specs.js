@@ -234,3 +234,20 @@ describe('[MoveCursor]', function() {
     expect(keyboard.caretPos.endPos).toBe(0);
   });
 });
+
+describe('[Commands]', function() {
+  it('Copy and Paste', function() {
+    let keyboard = GhostKeyboard({lang: 'en', value: 'I love you'});
+    
+    // Select Whole Text
+    keyboard.type('KeyA', {ctrlKey: true});
+    // Copy to clipboard
+    keyboard.type('KeyC', {ctrlKey: true});
+    // Cancel Selection
+    keyboard.type('ArrowRight');
+    // Paste clipboard
+    keyboard.type('KeyV', {ctrlKey: true});
+
+    expect(keyboard.value).toBe('I love youI love you');
+  });
+});

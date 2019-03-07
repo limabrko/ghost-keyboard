@@ -14,9 +14,13 @@ const UNICODE_DATA = {
   //TBase: 4519
 };
 
-const KOREAN: IMEComposer = {
-  id: 'ko',
-  compose: (text: string) => {
+class KoreanComposer implements IMEComposer {
+  lang: SupportedLangs;
+  constructor() {
+    this.lang = 'ko';
+  }
+
+  compose(text: string) {
     let textLen = text.length;
 
     if (textLen === 0) {
@@ -57,6 +61,7 @@ const KOREAN: IMEComposer = {
           continue;
         }
       }
+
       SBaseUnicode = firstUnicode - SBase;
       if (0 <= SBaseUnicode && SBaseUnicode < 11145 && (SBaseUnicode % TCount) === 0) {
         finaleIndex = finale.indexOf(curUnicode);
@@ -73,6 +78,7 @@ const KOREAN: IMEComposer = {
           continue;
         }
       }
+
       if (0 <= SBaseUnicode && SBaseUnicode < 11172 && (SBaseUnicode % TCount) !== 0) {
         finaleIndex = SBaseUnicode % TCount;
         mergeUnicode = curUnicode - VBase;
@@ -98,18 +104,19 @@ const KOREAN: IMEComposer = {
           continue;
         }
       }
+      
       firstUnicode = curUnicode;
       firstChar = firstChar + String.fromCharCode(curUnicode);
     }
     return firstChar;
-  },
+  }
 
   /**
    * Decompose a korean char
    * @param {String} text
    * @returns {string}
    */
-  decompose: (text: string) => {
+  decompose(text: string) {
     let {
       initial,
       finale,
@@ -145,6 +152,6 @@ const KOREAN: IMEComposer = {
     }
     return firstChar;
   }
-};
+}
 
-export default KOREAN;
+export default KoreanComposer;

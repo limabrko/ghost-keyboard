@@ -1,5 +1,4 @@
 import codes from './codes';
-import MainKeyboard from './Main';
 
 const KEYSET_LIST: CharSet[] = [
   {code: codes.Backquote.code, base: '`', mod: '~'},
@@ -62,7 +61,7 @@ const KEYSET_LIST: CharSet[] = [
 ];
 
 function arrangeCharsets() {
-  let charsListArranged: {[code: string]: CharSet} = {};
+  let charsListArranged: KeyboardCharset = {};
 
   KEYSET_LIST.forEach((char: CharSet) => {
     charsListArranged[char.code] = char;
@@ -71,12 +70,33 @@ function arrangeCharsets() {
   return charsListArranged;
 }
 
-class KoreanKeyboard extends MainKeyboard {
-  constructor(props: KeyboardConfig) {
-    super(props);
+const KOREAN_CHARSETS = arrangeCharsets();
 
+class KoreanKeyboard implements KeyboardLayout {
+  lang: SupportedLangs;
+  charsets: KeyboardCharset;
+  
+  constructor() {
     this.lang = 'ko';
-    this.charsets = arrangeCharsets();
+    this.charsets = KOREAN_CHARSETS;
+  }
+
+  getChar(code: string, mods?: KeyboardEventMods): Char {
+    if (this.charsets[code]) {
+      let char = {
+        code: code,
+        char: this.charsets[code].base,
+        compose: this.charsets[code].compose
+      };
+
+      if (mods && mods.shiftKey && this.charsets[code].mod) {
+        char.char = this.charsets[code].mod;
+      }
+
+      return char;
+    }
+    
+    return null;
   }
 }
 

@@ -49,14 +49,22 @@ type Config = {
   value?: string;
   caretPos?: CaretPos;
   input?: HTMLInputElement;
-  pattern?: RegExp;
-}
+  pattern?: RegExp; 
+} 
 
 type IMEComposer = {
-  id: string,
+  lang: SupportedLangs;
   compose: (text: string) => string;
   decompose: (text: string) => string;
 };
 
 type Mods = 'ctrlKey' |  'altKey' | 'shiftKey' | 'metaKey' | 'capslock';
 type KeyboardEventMods = { [mod in Mods]?: boolean };
+
+type KeyboardLayout = {
+  lang: SupportedLangs;
+  charsets: KeyboardCharset;
+  getChar: (code: string, mods?: KeyboardEventMods) => Char;
+};
+
+type KeyboardCharset = {[code: string]: CharSet};
