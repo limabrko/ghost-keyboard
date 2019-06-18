@@ -78,43 +78,8 @@ class EnglishKeyboard extends MainKeyboard implements KeyboardLayout {
   charsets: KeyboardCharset;
 
   constructor() {
-    super();
-
+    super(ENGLISH_CHARSETS);
     this.lang = 'en';
-    this.charsets = ENGLISH_CHARSETS;
-  }
-
-  getCode(char: string) {
-    let code = null;
-
-    if (char === ' ') {
-      return {
-        code: codes.Space.code
-      };
-    }
-
-    KEYSET_LIST.every(keyset => {
-      if (keyset.base === char) {
-        code = {
-          code: keyset.code
-        };
-        return false;
-      }
-
-      if (keyset.mod === char) {
-        code = {
-          code: keyset.code,
-          mods: {
-            shiftKey: true
-          }
-        };
-        return false;
-      }
-
-      return true;
-    });
-
-    return code;
   }
 
   getChar(code: string, mods?: KeyboardEventMods): Char {

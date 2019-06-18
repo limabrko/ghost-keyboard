@@ -971,33 +971,6 @@ var EnglishKeyboard = /** @class */ (function (_super) {
         _this.charsets = ENGLISH_CHARSETS;
         return _this;
     }
-    EnglishKeyboard.prototype.getCode = function (char) {
-        var code = null;
-        if (char === ' ') {
-            return {
-                code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Space.code
-            };
-        }
-        KEYSET_LIST.every(function (keyset) {
-            if (keyset.base === char) {
-                code = {
-                    code: keyset.code
-                };
-                return false;
-            }
-            if (keyset.mod === char) {
-                code = {
-                    code: keyset.code,
-                    mods: {
-                        shiftKey: true
-                    }
-                };
-                return false;
-            }
-            return true;
-        });
-        return code;
-    };
     EnglishKeyboard.prototype.getChar = function (code, mods) {
         if (this.charsets[code]) {
             var char = {

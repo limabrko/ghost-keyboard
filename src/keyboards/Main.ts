@@ -3,8 +3,8 @@ import codes from './codes';
 class MainKeyboard {
   charsets: KeyboardCharset;
 
-  constructor() {
-    this.charsets = {};
+  constructor(charsets: KeyboardCharset) {
+    this.charsets = charsets;
   }
 
   getCode(char: string) {

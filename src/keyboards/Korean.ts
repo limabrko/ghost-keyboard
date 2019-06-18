@@ -78,10 +78,8 @@ class KoreanKeyboard extends MainKeyboard implements KeyboardLayout {
   charsets: KeyboardCharset;
 
   constructor() {
-    super();
-
+    super(KOREAN_CHARSETS);
     this.lang = 'ko';
-    this.charsets = KOREAN_CHARSETS;
   }
 
   getChar(code: string, mods?: KeyboardEventMods): Char {
