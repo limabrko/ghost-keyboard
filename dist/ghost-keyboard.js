@@ -721,7 +721,21 @@ var GhostKeyboard = /** @class */ (function () {
         this.lang = lang;
         this.Keyboard = new _keyboards__WEBPACK_IMPORTED_MODULE_0__["default"][lang];
         this.IME = new _IME__WEBPACK_IMPORTED_MODULE_2__["default"][lang];
-        var convertedChars = keyboardCodes.map(function (code) { return _this.Keyboard.getChar(code.code, code.mods); });
+        var convertedChars = [];
+        keyboardCodes.forEach(function (code, idx) {
+            if (!code) {
+                var decomposed = _this.IME.decompose(letters[idx]);
+                if (decomposed.length !== letters[idx].length) {
+                    var decomposedCodes = decomposed.split('').map(function (letter) { return _this.Keyboard.getCode(letter); });
+                    return decomposedCodes.forEach(function (code) { return convertedChars.push(_this.Keyboard.getChar(code.code, code.mods)); });
+                }
+                code = _this.Keyboard.getCode(letters[idx]);
+                if (!code) {
+                    return convertedChars;
+                }
+            }
+            convertedChars.push(_this.Keyboard.getChar(code.code, code.mods));
+        });
         var convertedLetters = convertedChars.map(function (char) {
             if (char.code === _keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].Space.code) {
                 return ' ';
@@ -966,9 +980,8 @@ var ENGLISH_CHARSETS = arrangeCharsets();
 var EnglishKeyboard = /** @class */ (function (_super) {
     __extends(EnglishKeyboard, _super);
     function EnglishKeyboard() {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, ENGLISH_CHARSETS) || this;
         _this.lang = 'en';
-        _this.charsets = ENGLISH_CHARSETS;
         return _this;
     }
     EnglishKeyboard.prototype.getChar = function (code, mods) {
@@ -1091,9 +1104,8 @@ var KOREAN_CHARSETS = arrangeCharsets();
 var KoreanKeyboard = /** @class */ (function (_super) {
     __extends(KoreanKeyboard, _super);
     function KoreanKeyboard() {
-        var _this = _super.call(this) || this;
+        var _this = _super.call(this, KOREAN_CHARSETS) || this;
         _this.lang = 'ko';
-        _this.charsets = KOREAN_CHARSETS;
         return _this;
     }
     KoreanKeyboard.prototype.getChar = function (code, mods) {
@@ -1129,8 +1141,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _codes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./codes */ "./src/keyboards/codes.ts");
 
 var MainKeyboard = /** @class */ (function () {
-    function MainKeyboard() {
-        this.charsets = {};
+    function MainKeyboard(charsets) {
+        this.charsets = charsets;
     }
     MainKeyboard.prototype.getCode = function (char) {
         var _this = this;

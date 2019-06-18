@@ -525,7 +525,25 @@ class GhostKeyboard {
     this.Keyboard = new Keyboards[lang];
     this.IME = new IME[lang];
 
-    const convertedChars = keyboardCodes.map(code => this.Keyboard.getChar(code.code, code.mods));
+    const convertedChars: Char[] = [];
+    keyboardCodes.forEach((code, idx) => {
+      if (!code) {
+        const decomposed = this.IME.decompose(letters[idx]);
+
+        if (decomposed.length !== letters[idx].length) {
+          const decomposedCodes = decomposed.split('').map(letter => this.Keyboard.getCode(letter));
+          return decomposedCodes.forEach(code => convertedChars.push(this.Keyboard.getChar(code.code, code.mods)));
+        }
+
+        code = this.Keyboard.getCode(letters[idx]);
+        if (!code) {
+          return convertedChars;
+        }
+      }
+
+      convertedChars.push(this.Keyboard.getChar(code.code, code.mods));
+    });
+
     const convertedLetters = convertedChars.map(char => {
       if (char.code === codes.Space.code) {
         return ' ';
