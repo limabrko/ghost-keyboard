@@ -62,7 +62,7 @@ const KEYSET_LIST: CharSet[] = [
 ];
 
 function arrangeCharsets() {
-  let charsListArranged: {[code: string]: CharSet} = {};
+  let charsListArranged: KeyboardCharset = {};
 
   KEYSET_LIST.forEach((char: CharSet) => {
     charsListArranged[char.code] = char;
@@ -70,18 +70,18 @@ function arrangeCharsets() {
 
   return charsListArranged;
 }
-<<<<<<< Updated upstream
-=======
 
 const ENGLISH_CHARSETS = arrangeCharsets();
->>>>>>> Stashed changes
 
-class EnglishKeyboard extends MainKeyboard {
-  constructor(props: KeyboardConfig) {
-    super(props);
+class EnglishKeyboard extends MainKeyboard implements KeyboardLayout {
+  lang: SupportedLangs;
+  charsets: KeyboardCharset;
+
+  constructor() {
+    super();
 
     this.lang = 'en';
-    this.charsets = arrangeCharsets();
+    this.charsets = ENGLISH_CHARSETS;
   }
 
   getCode(char: string) {

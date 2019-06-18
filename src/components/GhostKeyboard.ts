@@ -1,14 +1,10 @@
-import Keyboard from '../keyboards';
-import codes from '../keyboards/codes';
+import Keyboards from '../keyboards';
+import codes, {get as getCode} from '../keyboards/codes';
 import IME from '../IME';
 import utils from '../helpers/utils';
 
 const defaultConfig: Config = {
-<<<<<<< Updated upstream
-  lang: 'en', 
-=======
   lang: 'en',
->>>>>>> Stashed changes
   value: '',
   caretPos: {
     startPos: 0,
@@ -19,14 +15,15 @@ const defaultConfig: Config = {
 
 class GhostKeyboard {
   private lang: SupportedLangs;
-  private Keyboard: any;
-  private IME: IME;
+  private Keyboard: KeyboardLayout;
+  private IME: IMEComposer;
   private composing: CharComposition|null;
   private capslock: boolean;
   private input: HTMLInputElement|null;
   private commands: Command;
   private notPreventCommands: Command;
   private pattern: RegExp;
+  private clipboard: string;
   value: string;
   caretPos: CaretPos;
 
@@ -35,10 +32,14 @@ class GhostKeyboard {
       config = {...defaultConfig, ...config};
     }
 
+    if (!Keyboards[config.lang]) {
+      throw new Error('Keyboard language not compatible.');
+    }
+
     this.lang = config.lang;
     this.pattern = config.pattern;
-    this.Keyboard = Keyboard(this.lang);
-    this.IME = new IME(config.lang);
+    this.Keyboard = new Keyboards[this.lang];
+    this.IME = new IME[this.lang];
     this.setInput(config.input);
 
     this.value = config.value;
@@ -61,7 +62,7 @@ class GhostKeyboard {
       [codes.ArrowLeft.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
       [codes.Home.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
       [codes.End.code]: [{mods: [], action: this.onMoveCaret.bind(this)}],
-      [codes.KeyC.code]: [{mods: ['ctrlKey'], action: function(){}}],
+      [codes.KeyC.code]: [{mods: ['ctrlKey'], action: this.onCopy.bind(this)}],
       [codes.KeyV.code]: [{mods: ['ctrlKey'], action: this.onPaste.bind(this)}]
     };
     this.notPreventCommands = {
@@ -120,7 +121,7 @@ class GhostKeyboard {
 
   private insertChar(char: string): void {
     let value = this.value,
-        len = value.length;
+      len = value.length;
 
     if (this.pattern) {
       let matchedChars = char.match(this.pattern);
@@ -183,12 +184,12 @@ class GhostKeyboard {
 
     if (this.composing) {
       let composingChar = this.removeComposing();
-      let decomposeChar = this.IME.composer.decompose(composingChar);
+      let decomposeChar = this.IME.decompose(composingChar);
       if (decomposeChar.length === 1) {
         return;
       }
 
-      let newCompositionChar = this.IME.composer.compose(decomposeChar.slice(0, -1));
+      let newCompositionChar = this.IME.compose(decomposeChar.slice(0, -1));
       this.composing = this.createComposition(newCompositionChar, this.caretPos.startPos + (newCompositionChar.length -1));
 
       this.insertChar(this.composing.char);
@@ -326,12 +327,10 @@ class GhostKeyboard {
     });
   }
 
-  private onPaste(e: ClipboardEvent) {
-    e.preventDefault();
-    this.insertChar(utils.getClipboardText(e));
+  private onCopy() {
+    const {startPos, endPos} = this.getCaretPos();
+    this.clipboard = this.value.substr(startPos, endPos);
   }
-<<<<<<< Updated upstream
-=======
 
   private onPaste(e?: ClipboardEvent) {
     let pastedText = this.clipboard;
@@ -343,7 +342,6 @@ class GhostKeyboard {
 
     this.insertChar(pastedText);
   }
->>>>>>> Stashed changes
 
   private onInputMousedown() {
     this.composing = null;
@@ -504,7 +502,7 @@ class GhostKeyboard {
 
     if (this.composing && charSet.compose) {
       let composingChar = this.removeComposing();
-      let composition = this.IME.composer.compose(composingChar + char);
+      let composition = this.IME.compose(composingChar + char);
       char = composition;
     }
     this.composing = charSet.compose ? this.createComposition(char.charAt(char.length -1), this.caretPos.startPos + (char.length -1)) : null;
@@ -544,7 +542,7 @@ class GhostKeyboard {
     }
 
     if (event.type === 'keydown') {
-      let code = this.Keyboard.getCode(event.code ? event.code : event.which);
+      let code = getCode(event.code ? event.code : event.which);
 
       if (!code) {
         return;
@@ -568,7 +566,7 @@ class GhostKeyboard {
   }
 
   type(key: string|number, mods?: KeyboardEventMods) {
-    let code = this.Keyboard.getCode(key);
+    let code = getCode(key);
     return this.executeKey(code, mods);
   }
 }

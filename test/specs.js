@@ -234,8 +234,6 @@ describe('[MoveCursor]', function() {
     expect(keyboard.caretPos.endPos).toBe(0);
   });
 });
-<<<<<<< Updated upstream
-=======
 
 describe('[Commands]', function() {
   it('Copy and Paste', function() {
@@ -254,6 +252,7 @@ describe('[Commands]', function() {
   });
 });
 
+
 describe('[Korean]', function() {
   it('Change Language to English', function() {
     let keyboard = GhostKeyboard({lang: 'ko', value: '빨리 빨리'});
@@ -269,4 +268,3 @@ describe('[English]', function() {
     expect(keyboard.value).toBe('홴ㅅ ㅏ됴ㅠㅐㅁㄱㅇ');
   });
 });
->>>>>>> Stashed changes

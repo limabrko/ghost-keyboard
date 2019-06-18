@@ -62,7 +62,7 @@ const KEYSET_LIST: CharSet[] = [
 ];
 
 function arrangeCharsets() {
-  let charsListArranged: {[code: string]: CharSet} = {};
+  let charsListArranged: KeyboardCharset = {};
 
   KEYSET_LIST.forEach((char: CharSet) => {
     charsListArranged[char.code] = char;
@@ -71,54 +71,17 @@ function arrangeCharsets() {
   return charsListArranged;
 }
 
-class KoreanKeyboard extends MainKeyboard {
-  constructor(props: KeyboardConfig) {
-    super(props);
+const KOREAN_CHARSETS = arrangeCharsets();
 
-<<<<<<< Updated upstream
-    this.lang = 'ko';
-    this.charsets = arrangeCharsets();
-=======
-class KoreanKeyboard implements KeyboardLayout {
+class KoreanKeyboard extends MainKeyboard implements KeyboardLayout {
   lang: SupportedLangs;
   charsets: KeyboardCharset;
 
   constructor() {
+    super();
+
     this.lang = 'ko';
     this.charsets = KOREAN_CHARSETS;
-  }
-
-  getCode(char: string) {
-    let code = null;
-
-    if (char === ' ') {
-      return {
-        code: codes.Space.code
-      };
-    }
-
-    KEYSET_LIST.every(keyset => {
-      if (keyset.base === char) {
-        code = {
-          code: keyset.code
-        };
-        return false;
-      }
-
-      if (keyset.mod === char) {
-        code = {
-          code: keyset.code,
-          mods: {
-            shiftKey: true
-          }
-        };
-        return false;
-      }
-
-      return true;
-    });
-
-    return code;
   }
 
   getChar(code: string, mods?: KeyboardEventMods): Char {
@@ -137,7 +100,6 @@ class KoreanKeyboard implements KeyboardLayout {
     }
 
     return null;
->>>>>>> Stashed changes
   }
 }
 

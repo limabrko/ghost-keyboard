@@ -1,46 +1,46 @@
-import {getByKeyCode} from './codes';
+import codes from './codes';
 
-class Keyboard {
-  lang: SupportedLangs|null;
-  charsets: {[code: string]: CharSet};
+class MainKeyboard {
+  charsets: KeyboardCharset;
 
-  constructor(props: KeyboardConfig) {
-    this.lang = null;
+  constructor() {
     this.charsets = {};
   }
 
-  getCode(key: string|number): string|null {
-    if (typeof key === 'number') {
-      let keyboardCode = getByKeyCode(key);
-      if (keyboardCode !== null) {
-        key = keyboardCode.code;
-      }
-    }
+  getCode(char: string) {
+    let code = null;
 
-    if (typeof key === 'string' && this.charsets[key]) {
-      return key;
-    }
-
-    return null;
-  }
-
-  getChar(code: string, mods?: KeyboardEventMods): Char {
-    if (this.charsets[code]) {
-      let char = {
-        code: code,
-        char: this.charsets[code].base,
-        compose: this.charsets[code].compose
+    if (char === ' ') {
+      return {
+        code: codes.Space.code
       };
+    }
 
-      if (mods && mods.shiftKey && this.charsets[code].mod) {
-        char.char = this.charsets[code].mod;
+    Object.keys(this.charsets).every(charsetCode => {
+      const keyset = this.charsets[charsetCode];
+
+      if (keyset.base === char) {
+        code = {
+          code: keyset.code
+        };
+        return false;
       }
 
-      return char;
-    }
-    
-    return null;
+      if (keyset.mod === char) {
+        code = {
+          code: keyset.code,
+          mods: {
+            shiftKey: true
+          }
+        };
+        return false;
+      }
+
+      return true;
+    });
+
+    return code;
   }
 }
 
-export default Keyboard;
+export default MainKeyboard;

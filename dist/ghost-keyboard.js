@@ -96,66 +96,34 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/IME/english.ts":
+/***/ "./src/IME/English.ts":
 /*!****************************!*\
-  !*** ./src/IME/english.ts ***!
+  !*** ./src/IME/English.ts ***!
   \****************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-var ENGLISH = {
-    id: 'en',
-    compose: function (text) {
-        return text;
-    },
-    decompose: function (text) {
-        return text;
-    },
-};
-/* harmony default export */ __webpack_exports__["default"] = (ENGLISH);
-
-
-/***/ }),
-
-<<<<<<< Updated upstream
-/***/ "./src/IME/index.ts":
-/*!**************************!*\
-  !*** ./src/IME/index.ts ***!
-  \**************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _english__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./english */ "./src/IME/english.ts");
-/* harmony import */ var _korean__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./korean */ "./src/IME/korean.ts");
-
-
-var IME_LIST = {
-    en: _english__WEBPACK_IMPORTED_MODULE_0__["default"],
-    ko: _korean__WEBPACK_IMPORTED_MODULE_1__["default"]
-};
-var IME = /** @class */ (function () {
-    function IME(lang) {
-        if (!IME_LIST[lang]) {
-            throw new Error('IME Language not found.');
-        }
-        this.lang = lang;
-        this.composer = IME_LIST[lang];
+var EnglishComposer = /** @class */ (function () {
+    function EnglishComposer() {
+        this.lang = 'en';
     }
-    return IME;
+    EnglishComposer.prototype.compose = function (text) {
+        return text;
+    };
+    EnglishComposer.prototype.decompose = function (text) {
+        return text;
+    };
+    return EnglishComposer;
 }());
-/* harmony default export */ __webpack_exports__["default"] = (IME);
+;
+/* harmony default export */ __webpack_exports__["default"] = (EnglishComposer);
 
 
 /***/ }),
 
-/***/ "./src/IME/korean.ts":
-=======
 /***/ "./src/IME/Korean.ts":
->>>>>>> Stashed changes
 /*!***************************!*\
   !*** ./src/IME/Korean.ts ***!
   \***************************/
@@ -179,53 +147,41 @@ var UNICODE_DATA = {
     //LBase: 4352
     //TBase: 4519
 };
-<<<<<<< Updated upstream
-var KOREAN = {
-    id: 'ko',
-    compose: function (text) {
-=======
-function isLead(unicode) {
-    var initialIndex = UNICODE_DATA.initial.indexOf(unicode);
-    return initialIndex !== -1;
-}
-function isVowel(unicode) {
-    var mergeUnicode = unicode - UNICODE_DATA.VBase;
-    return (0 <= mergeUnicode);
-}
 var KoreanComposer = /** @class */ (function () {
     function KoreanComposer() {
         this.lang = 'ko';
     }
     KoreanComposer.prototype.compose = function (text) {
->>>>>>> Stashed changes
         var textLen = text.length;
         if (textLen === 0) {
             return "";
         }
         var initial = UNICODE_DATA.initial, finale = UNICODE_DATA.finale, VBase = UNICODE_DATA.VBase, SBase = UNICODE_DATA.SBase, VCount = UNICODE_DATA.VCount, TCount = UNICODE_DATA.TCount, NCount = UNICODE_DATA.NCount, LCount = UNICODE_DATA.LCount, dFinale = UNICODE_DATA.dFinale, dMedial = UNICODE_DATA.dMedial;
-        var prevUnicode = text.charCodeAt(0), composition = String.fromCharCode(prevUnicode), curUnicode, initialIndex, mergeUnicode, medialIndex, finaleIndex, dFinaleIndex, SBaseUnicode;
+        var firstUnicode = text.charCodeAt(0), firstChar = String.fromCharCode(firstUnicode), curUnicode, initialIndex, mergeUnicode, medialIndex, finaleIndex, dFinaleIndex, SBaseUnicode;
         for (var i = 1; i < textLen; ++i) {
             curUnicode = text.charCodeAt(i);
-            if (isLead(prevUnicode) && isVowel(curUnicode)) {
-                initialIndex = initial.indexOf(prevUnicode);
+            initialIndex = initial.indexOf(firstUnicode);
+            if (initialIndex !== -1) {
                 mergeUnicode = curUnicode - VBase;
-                prevUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
-                composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
-                continue;
+                if (0 <= mergeUnicode && mergeUnicode < VCount) {
+                    firstUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
+                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
+                    continue;
+                }
             }
-            SBaseUnicode = prevUnicode - SBase;
+            SBaseUnicode = firstUnicode - SBase;
             if (0 <= SBaseUnicode && SBaseUnicode < 11145 && (SBaseUnicode % TCount) === 0) {
                 finaleIndex = finale.indexOf(curUnicode);
                 if (finaleIndex !== -1) {
-                    prevUnicode += finaleIndex;
-                    composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
+                    firstUnicode += finaleIndex;
+                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
                     continue;
                 }
                 mergeUnicode = (SBaseUnicode % NCount) / TCount;
                 medialIndex = dMedial.indexOf((mergeUnicode * 100) + (curUnicode - VBase));
                 if (medialIndex > 0) {
-                    prevUnicode += (medialIndex - mergeUnicode) * TCount;
-                    composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
+                    firstUnicode += (medialIndex - mergeUnicode) * TCount;
+                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
                     continue;
                 }
             }
@@ -235,70 +191,58 @@ var KoreanComposer = /** @class */ (function () {
                 if (0 <= mergeUnicode && mergeUnicode < VCount) {
                     initialIndex = initial.indexOf(finale[finaleIndex]);
                     if (0 <= initialIndex && initialIndex < LCount) {
-                        composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode - finaleIndex);
-                        prevUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
-                        composition = composition + String.fromCharCode(prevUnicode);
+                        firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode - finaleIndex);
+                        firstUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
+                        firstChar = firstChar + String.fromCharCode(firstUnicode);
                         continue;
                     }
                     if (finaleIndex < dFinale.length && dFinale[finaleIndex] !== 0) {
-                        composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode - finaleIndex + Math.floor(dFinale[finaleIndex] / 100));
-                        prevUnicode = SBase + (initial.indexOf(finale[(dFinale[finaleIndex] % 100)]) * VCount + mergeUnicode) * TCount;
-                        composition = composition + String.fromCharCode(prevUnicode);
+                        firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode - finaleIndex + Math.floor(dFinale[finaleIndex] / 100));
+                        firstUnicode = SBase + (initial.indexOf(finale[(dFinale[finaleIndex] % 100)]) * VCount + mergeUnicode) * TCount;
+                        firstChar = firstChar + String.fromCharCode(firstUnicode);
                         continue;
                     }
                 }
                 dFinaleIndex = dFinale.indexOf((finaleIndex * 100) + finale.indexOf(curUnicode));
                 if (dFinaleIndex > 0) {
-                    prevUnicode = prevUnicode + dFinaleIndex - finaleIndex;
-                    composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
+                    firstUnicode = firstUnicode + dFinaleIndex - finaleIndex;
+                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
                     continue;
                 }
             }
-            prevUnicode = curUnicode;
-            composition = composition + String.fromCharCode(curUnicode);
+            firstUnicode = curUnicode;
+            firstChar = firstChar + String.fromCharCode(curUnicode);
         }
-<<<<<<< Updated upstream
         return firstChar;
-    },
-=======
-        return composition;
     };
->>>>>>> Stashed changes
     /**
      * Decompose a korean char
      * @param {String} text
      * @returns {string}
      */
-    decompose: function (text) {
+    KoreanComposer.prototype.decompose = function (text) {
         var initial = UNICODE_DATA.initial, finale = UNICODE_DATA.finale, VBase = UNICODE_DATA.VBase, SBase = UNICODE_DATA.SBase, TCount = UNICODE_DATA.TCount, NCount = UNICODE_DATA.NCount, SCount = UNICODE_DATA.SCount;
-        var len = text.length, composition = "", curUnicode, SBaseUnicode, initialUnicode, VBaseUnicode, finaleUnicode;
+        var len = text.length, firstChar = "", curUnicode, SBaseUnicode, initialUnicode, VBaseUnicode, finaleUnicode;
         for (var b = 0; b < len; b++) {
             curUnicode = text.charCodeAt(b);
             SBaseUnicode = curUnicode - SBase;
             if (SBaseUnicode < 0 || SBaseUnicode >= SCount) {
-                composition = composition + String.fromCharCode(curUnicode);
+                firstChar = firstChar + String.fromCharCode(curUnicode);
                 continue;
             }
             initialUnicode = initial[Math.floor(SBaseUnicode / NCount)];
             VBaseUnicode = VBase + (SBaseUnicode % NCount) / TCount;
             finaleUnicode = finale[SBaseUnicode % TCount];
-            composition = composition + String.fromCharCode(initialUnicode, VBaseUnicode);
+            firstChar = firstChar + String.fromCharCode(initialUnicode, VBaseUnicode);
             if (finaleUnicode !== 0) {
-                composition = composition + String.fromCharCode(finaleUnicode);
+                firstChar = firstChar + String.fromCharCode(finaleUnicode);
             }
         }
-<<<<<<< Updated upstream
         return firstChar;
-    }
-};
-/* harmony default export */ __webpack_exports__["default"] = (KOREAN);
-=======
-        return composition;
     };
     return KoreanComposer;
 }());
 /* harmony default export */ __webpack_exports__["default"] = (KoreanComposer);
->>>>>>> Stashed changes
 
 
 /***/ }),
@@ -368,10 +312,13 @@ var GhostKeyboard = /** @class */ (function () {
         if (config) {
             config = __assign({}, defaultConfig, config);
         }
+        if (!_keyboards__WEBPACK_IMPORTED_MODULE_0__["default"][config.lang]) {
+            throw new Error('Keyboard language not compatible.');
+        }
         this.lang = config.lang;
         this.pattern = config.pattern;
-        this.Keyboard = Object(_keyboards__WEBPACK_IMPORTED_MODULE_0__["default"])(this.lang);
-        this.IME = new _IME__WEBPACK_IMPORTED_MODULE_2__["default"](config.lang);
+        this.Keyboard = new _keyboards__WEBPACK_IMPORTED_MODULE_0__["default"][this.lang];
+        this.IME = new _IME__WEBPACK_IMPORTED_MODULE_2__["default"][this.lang];
         this.setInput(config.input);
         this.value = config.value;
         this.caretPos = {
@@ -393,7 +340,7 @@ var GhostKeyboard = /** @class */ (function () {
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].ArrowLeft.code] = [{ mods: [], action: this.onMoveCaret.bind(this) }],
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].Home.code] = [{ mods: [], action: this.onMoveCaret.bind(this) }],
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].End.code] = [{ mods: [], action: this.onMoveCaret.bind(this) }],
-            _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyC.code] = [{ mods: ['ctrlKey'], action: function () { } }],
+            _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyC.code] = [{ mods: ['ctrlKey'], action: this.onCopy.bind(this) }],
             _a[_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].KeyV.code] = [{ mods: ['ctrlKey'], action: this.onPaste.bind(this) }],
             _a);
         this.notPreventCommands = (_b = {},
@@ -489,11 +436,11 @@ var GhostKeyboard = /** @class */ (function () {
         var startPos = this.getCaretPos().startPos;
         if (this.composing) {
             var composingChar = this.removeComposing();
-            var decomposeChar = this.IME.composer.decompose(composingChar);
+            var decomposeChar = this.IME.decompose(composingChar);
             if (decomposeChar.length === 1) {
                 return;
             }
-            var newCompositionChar = this.IME.composer.compose(decomposeChar.slice(0, -1));
+            var newCompositionChar = this.IME.compose(decomposeChar.slice(0, -1));
             this.composing = this.createComposition(newCompositionChar, this.caretPos.startPos + (newCompositionChar.length - 1));
             this.insertChar(this.composing.char);
             return;
@@ -618,9 +565,17 @@ var GhostKeyboard = /** @class */ (function () {
             }
         });
     };
+    GhostKeyboard.prototype.onCopy = function () {
+        var _a = this.getCaretPos(), startPos = _a.startPos, endPos = _a.endPos;
+        this.clipboard = this.value.substr(startPos, endPos);
+    };
     GhostKeyboard.prototype.onPaste = function (e) {
-        e.preventDefault();
-        this.insertChar(_helpers_utils__WEBPACK_IMPORTED_MODULE_3__["default"].getClipboardText(e));
+        var pastedText = this.clipboard;
+        if (e && e instanceof ClipboardEvent) {
+            e.preventDefault();
+            pastedText = _helpers_utils__WEBPACK_IMPORTED_MODULE_3__["default"].getClipboardText(e);
+        }
+        this.insertChar(pastedText);
     };
     GhostKeyboard.prototype.onInputMousedown = function () {
         this.composing = null;
@@ -747,7 +702,7 @@ var GhostKeyboard = /** @class */ (function () {
         var char = charSet.char;
         if (this.composing && charSet.compose) {
             var composingChar = this.removeComposing();
-            var composition = this.IME.composer.compose(composingChar + char);
+            var composition = this.IME.compose(composingChar + char);
             char = composition;
         }
         this.composing = charSet.compose ? this.createComposition(char.charAt(char.length - 1), this.caretPos.startPos + (char.length - 1)) : null;
@@ -780,7 +735,7 @@ var GhostKeyboard = /** @class */ (function () {
             throw new Error('The event have to be a KeyboardEvent.');
         }
         if (event.type === 'keydown') {
-            var code = this.Keyboard.getCode(event.code ? event.code : event.which);
+            var code = Object(_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["get"])(event.code ? event.code : event.which);
             if (!code) {
                 return;
             }
@@ -798,7 +753,7 @@ var GhostKeyboard = /** @class */ (function () {
         }
     };
     GhostKeyboard.prototype.type = function (key, mods) {
-        var code = this.Keyboard.getCode(key);
+        var code = Object(_keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["get"])(key);
         return this.executeKey(code, mods);
     };
     return GhostKeyboard;
@@ -915,145 +870,9 @@ function GhostKeyboard(config) {
 
 /***/ }),
 
-/***/ "./src/keyboards/Main.ts":
-/*!*******************************!*\
-  !*** ./src/keyboards/Main.ts ***!
-  \*******************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _codes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./codes */ "./src/keyboards/codes.ts");
-
-var Keyboard = /** @class */ (function () {
-    function Keyboard(props) {
-        this.lang = null;
-        this.charsets = {};
-    }
-    Keyboard.prototype.getCode = function (key) {
-        if (typeof key === 'number') {
-            var keyboardCode = Object(_codes__WEBPACK_IMPORTED_MODULE_0__["getByKeyCode"])(key);
-            if (keyboardCode !== null) {
-                key = keyboardCode.code;
-            }
-        }
-        if (typeof key === 'string' && this.charsets[key]) {
-            return key;
-        }
-        return null;
-    };
-    Keyboard.prototype.getChar = function (code, mods) {
-        if (this.charsets[code]) {
-            var char = {
-                code: code,
-                char: this.charsets[code].base,
-                compose: this.charsets[code].compose
-            };
-            if (mods && mods.shiftKey && this.charsets[code].mod) {
-                char.char = this.charsets[code].mod;
-            }
-            return char;
-        }
-        return null;
-    };
-    return Keyboard;
-}());
-/* harmony default export */ __webpack_exports__["default"] = (Keyboard);
-
-
-/***/ }),
-
-/***/ "./src/keyboards/codes.ts":
-/*!********************************!*\
-  !*** ./src/keyboards/codes.ts ***!
-  \********************************/
-/*! exports provided: getByKeyCode, default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getByKeyCode", function() { return getByKeyCode; });
-var CODES_LIST = {
-    Backquote: { code: 'Backquote', keyCode: 192 },
-    Minus: { code: 'Minus', keyCode: 189 },
-    Equal: { code: 'Equal', keyCode: 187 },
-    BracketLeft: { code: 'BracketLeft', keyCode: 219 },
-    BracketRight: { code: 'BracketRight', keyCode: 221 },
-    Backslash: { code: 'Backslash', keyCode: 220 },
-    Semicolon: { code: 'Semicolon', keyCode: 186 },
-    Quote: { code: 'Quote', keyCode: 222 },
-    Comma: { code: 'Comma', keyCode: 188 },
-    Period: { code: 'Period', keyCode: 190 },
-    Slash: { code: 'Slash', keyCode: 191 },
-    AltLeft: { code: 'AltLeft', keyCode: 18 },
-    Home: { code: 'Home', keyCode: 36 },
-    End: { code: 'End', keyCode: 35 },
-    CapsLock: { code: 'CapsLock', keyCode: 20 },
-    ShiftLeft: { code: 'ShiftLeft', keyCode: 16 },
-    ShiftRight: { code: 'ShiftRight', keyCode: 16 },
-    Space: { code: 'Space', keyCode: 32 },
-    ArrowLeft: { code: 'ArrowLeft', keyCode: 37 },
-    ArrowUp: { code: 'ArrowUp', keyCode: 38 },
-    ArrowRight: { code: 'ArrowRight', keyCode: 39 },
-    ArrowDown: { code: 'ArrowDown', keyCode: 40 },
-    Backspace: { code: 'Backspace', keyCode: 8 },
-    Delete: { code: 'Delete', keyCode: 46 },
-    Tab: { code: 'Tab', keyCode: 9 },
-    Digit1: { code: 'Digit1', keyCode: 49 },
-    Digit2: { code: 'Digit2', keyCode: 50 },
-    Digit3: { code: 'Digit3', keyCode: 51 },
-    Digit4: { code: 'Digit4', keyCode: 52 },
-    Digit5: { code: 'Digit5', keyCode: 53 },
-    Digit6: { code: 'Digit6', keyCode: 54 },
-    Digit7: { code: 'Digit7', keyCode: 55 },
-    Digit8: { code: 'Digit8', keyCode: 56 },
-    Digit9: { code: 'Digit9', keyCode: 57 },
-    Digit0: { code: 'Digit0', keyCode: 48 },
-    KeyA: { code: 'KeyA', keyCode: 65 },
-    KeyB: { code: 'KeyB', keyCode: 66 },
-    KeyC: { code: 'KeyC', keyCode: 67 },
-    KeyD: { code: 'KeyD', keyCode: 68 },
-    KeyE: { code: 'KeyE', keyCode: 69 },
-    KeyF: { code: 'KeyF', keyCode: 70 },
-    KeyG: { code: 'KeyG', keyCode: 71 },
-    KeyH: { code: 'KeyH', keyCode: 72 },
-    KeyI: { code: 'KeyI', keyCode: 73 },
-    KeyJ: { code: 'KeyJ', keyCode: 74 },
-    KeyK: { code: 'KeyK', keyCode: 75 },
-    KeyL: { code: 'KeyL', keyCode: 76 },
-    KeyM: { code: 'KeyM', keyCode: 77 },
-    KeyN: { code: 'KeyN', keyCode: 78 },
-    KeyO: { code: 'KeyO', keyCode: 79 },
-    KeyP: { code: 'KeyP', keyCode: 80 },
-    KeyQ: { code: 'KeyQ', keyCode: 81 },
-    KeyR: { code: 'KeyR', keyCode: 82 },
-    KeyS: { code: 'KeyS', keyCode: 83 },
-    KeyT: { code: 'KeyT', keyCode: 84 },
-    KeyU: { code: 'KeyU', keyCode: 85 },
-    KeyV: { code: 'KeyV', keyCode: 86 },
-    KeyW: { code: 'KeyW', keyCode: 87 },
-    KeyX: { code: 'KeyX', keyCode: 88 },
-    KeyY: { code: 'KeyY', keyCode: 89 },
-    KeyZ: { code: 'KeyZ', keyCode: 90 }
-};
-function getByKeyCode(keyCode) {
-    for (var code in CODES_LIST) {
-        if (CODES_LIST[code].keyCode === keyCode) {
-            return CODES_LIST[code];
-        }
-    }
-    return null;
-}
-;
-/* harmony default export */ __webpack_exports__["default"] = (CODES_LIST);
-
-
-/***/ }),
-
-/***/ "./src/keyboards/english.ts":
+/***/ "./src/keyboards/English.ts":
 /*!**********************************!*\
-  !*** ./src/keyboards/english.ts ***!
+  !*** ./src/keyboards/English.ts ***!
   \**********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -1143,12 +962,13 @@ function arrangeCharsets() {
     });
     return charsListArranged;
 }
+var ENGLISH_CHARSETS = arrangeCharsets();
 var EnglishKeyboard = /** @class */ (function (_super) {
     __extends(EnglishKeyboard, _super);
-    function EnglishKeyboard(props) {
-        var _this = _super.call(this, props) || this;
+    function EnglishKeyboard() {
+        var _this = _super.call(this) || this;
         _this.lang = 'en';
-        _this.charsets = arrangeCharsets();
+        _this.charsets = ENGLISH_CHARSETS;
         return _this;
     }
     EnglishKeyboard.prototype.getCode = function (char) {
@@ -1202,37 +1022,9 @@ var EnglishKeyboard = /** @class */ (function (_super) {
 
 /***/ }),
 
-/***/ "./src/keyboards/index.ts":
-/*!********************************!*\
-  !*** ./src/keyboards/index.ts ***!
-  \********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _english__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./english */ "./src/keyboards/english.ts");
-/* harmony import */ var _korean__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./korean */ "./src/keyboards/korean.ts");
-
-
-var KEYBOARDS = {
-    en: _english__WEBPACK_IMPORTED_MODULE_0__["default"],
-    ko: _korean__WEBPACK_IMPORTED_MODULE_1__["default"]
-};
-/* harmony default export */ __webpack_exports__["default"] = (function (lang) {
-    if (!KEYBOARDS[lang]) {
-        throw new Error('Keyboard Language not found.');
-    }
-    return new KEYBOARDS[lang]();
-});
-;
-
-
-/***/ }),
-
-/***/ "./src/keyboards/korean.ts":
+/***/ "./src/keyboards/Korean.ts":
 /*!*********************************!*\
-  !*** ./src/keyboards/korean.ts ***!
+  !*** ./src/keyboards/Korean.ts ***!
   \*********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -1322,24 +1114,61 @@ function arrangeCharsets() {
     });
     return charsListArranged;
 }
+var KOREAN_CHARSETS = arrangeCharsets();
 var KoreanKeyboard = /** @class */ (function (_super) {
     __extends(KoreanKeyboard, _super);
-    function KoreanKeyboard(props) {
-        var _this = _super.call(this, props) || this;
+    function KoreanKeyboard() {
+        var _this = _super.call(this) || this;
         _this.lang = 'ko';
-        _this.charsets = arrangeCharsets();
+        _this.charsets = KOREAN_CHARSETS;
         return _this;
     }
-<<<<<<< Updated upstream
-=======
-    KoreanKeyboard.prototype.getCode = function (char) {
+    KoreanKeyboard.prototype.getChar = function (code, mods) {
+        if (this.charsets[code]) {
+            var char = {
+                code: code,
+                char: this.charsets[code].base,
+                compose: this.charsets[code].compose
+            };
+            if (mods && mods.shiftKey && this.charsets[code].mod) {
+                char.char = this.charsets[code].mod;
+            }
+            return char;
+        }
+        return null;
+    };
+    return KoreanKeyboard;
+}(_Main__WEBPACK_IMPORTED_MODULE_1__["default"]));
+/* harmony default export */ __webpack_exports__["default"] = (KoreanKeyboard);
+
+
+/***/ }),
+
+/***/ "./src/keyboards/Main.ts":
+/*!*******************************!*\
+  !*** ./src/keyboards/Main.ts ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _codes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./codes */ "./src/keyboards/codes.ts");
+
+var MainKeyboard = /** @class */ (function () {
+    function MainKeyboard() {
+        this.charsets = {};
+    }
+    MainKeyboard.prototype.getCode = function (char) {
+        var _this = this;
         var code = null;
         if (char === ' ') {
             return {
                 code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Space.code
             };
         }
-        KEYSET_LIST.every(function (keyset) {
+        Object.keys(this.charsets).every(function (charsetCode) {
+            var keyset = _this.charsets[charsetCode];
             if (keyset.base === char) {
                 code = {
                     code: keyset.code
@@ -1359,24 +1188,131 @@ var KoreanKeyboard = /** @class */ (function (_super) {
         });
         return code;
     };
-    KoreanKeyboard.prototype.getChar = function (code, mods) {
-        if (this.charsets[code]) {
-            var char = {
-                code: code,
-                char: this.charsets[code].base,
-                compose: this.charsets[code].compose
-            };
-            if (mods && mods.shiftKey && this.charsets[code].mod) {
-                char.char = this.charsets[code].mod;
-            }
-            return char;
+    return MainKeyboard;
+}());
+/* harmony default export */ __webpack_exports__["default"] = (MainKeyboard);
+
+
+/***/ }),
+
+/***/ "./src/keyboards/codes.ts":
+/*!********************************!*\
+  !*** ./src/keyboards/codes.ts ***!
+  \********************************/
+/*! exports provided: getByKeyCode, get, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getByKeyCode", function() { return getByKeyCode; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "get", function() { return get; });
+var CODES_LIST = {
+    Backquote: { code: 'Backquote', keyCode: 192 },
+    Minus: { code: 'Minus', keyCode: 189 },
+    Equal: { code: 'Equal', keyCode: 187 },
+    BracketLeft: { code: 'BracketLeft', keyCode: 219 },
+    BracketRight: { code: 'BracketRight', keyCode: 221 },
+    Backslash: { code: 'Backslash', keyCode: 220 },
+    Semicolon: { code: 'Semicolon', keyCode: 186 },
+    Quote: { code: 'Quote', keyCode: 222 },
+    Comma: { code: 'Comma', keyCode: 188 },
+    Period: { code: 'Period', keyCode: 190 },
+    Slash: { code: 'Slash', keyCode: 191 },
+    AltLeft: { code: 'AltLeft', keyCode: 18 },
+    Home: { code: 'Home', keyCode: 36 },
+    End: { code: 'End', keyCode: 35 },
+    CapsLock: { code: 'CapsLock', keyCode: 20 },
+    ShiftLeft: { code: 'ShiftLeft', keyCode: 16 },
+    ShiftRight: { code: 'ShiftRight', keyCode: 16 },
+    Space: { code: 'Space', keyCode: 32 },
+    ArrowLeft: { code: 'ArrowLeft', keyCode: 37 },
+    ArrowUp: { code: 'ArrowUp', keyCode: 38 },
+    ArrowRight: { code: 'ArrowRight', keyCode: 39 },
+    ArrowDown: { code: 'ArrowDown', keyCode: 40 },
+    Backspace: { code: 'Backspace', keyCode: 8 },
+    Delete: { code: 'Delete', keyCode: 46 },
+    Tab: { code: 'Tab', keyCode: 9 },
+    Digit1: { code: 'Digit1', keyCode: 49 },
+    Digit2: { code: 'Digit2', keyCode: 50 },
+    Digit3: { code: 'Digit3', keyCode: 51 },
+    Digit4: { code: 'Digit4', keyCode: 52 },
+    Digit5: { code: 'Digit5', keyCode: 53 },
+    Digit6: { code: 'Digit6', keyCode: 54 },
+    Digit7: { code: 'Digit7', keyCode: 55 },
+    Digit8: { code: 'Digit8', keyCode: 56 },
+    Digit9: { code: 'Digit9', keyCode: 57 },
+    Digit0: { code: 'Digit0', keyCode: 48 },
+    KeyA: { code: 'KeyA', keyCode: 65 },
+    KeyB: { code: 'KeyB', keyCode: 66 },
+    KeyC: { code: 'KeyC', keyCode: 67 },
+    KeyD: { code: 'KeyD', keyCode: 68 },
+    KeyE: { code: 'KeyE', keyCode: 69 },
+    KeyF: { code: 'KeyF', keyCode: 70 },
+    KeyG: { code: 'KeyG', keyCode: 71 },
+    KeyH: { code: 'KeyH', keyCode: 72 },
+    KeyI: { code: 'KeyI', keyCode: 73 },
+    KeyJ: { code: 'KeyJ', keyCode: 74 },
+    KeyK: { code: 'KeyK', keyCode: 75 },
+    KeyL: { code: 'KeyL', keyCode: 76 },
+    KeyM: { code: 'KeyM', keyCode: 77 },
+    KeyN: { code: 'KeyN', keyCode: 78 },
+    KeyO: { code: 'KeyO', keyCode: 79 },
+    KeyP: { code: 'KeyP', keyCode: 80 },
+    KeyQ: { code: 'KeyQ', keyCode: 81 },
+    KeyR: { code: 'KeyR', keyCode: 82 },
+    KeyS: { code: 'KeyS', keyCode: 83 },
+    KeyT: { code: 'KeyT', keyCode: 84 },
+    KeyU: { code: 'KeyU', keyCode: 85 },
+    KeyV: { code: 'KeyV', keyCode: 86 },
+    KeyW: { code: 'KeyW', keyCode: 87 },
+    KeyX: { code: 'KeyX', keyCode: 88 },
+    KeyY: { code: 'KeyY', keyCode: 89 },
+    KeyZ: { code: 'KeyZ', keyCode: 90 }
+};
+function getByKeyCode(keyCode) {
+    for (var code in CODES_LIST) {
+        if (CODES_LIST[code].keyCode === keyCode) {
+            return CODES_LIST[code].code;
         }
-        return null;
-    };
->>>>>>> Stashed changes
-    return KoreanKeyboard;
-}(_Main__WEBPACK_IMPORTED_MODULE_1__["default"]));
-/* harmony default export */ __webpack_exports__["default"] = (KoreanKeyboard);
+    }
+    return null;
+}
+;
+function get(key) {
+    if (typeof key === 'number') {
+        return getByKeyCode(key);
+    }
+    if (typeof key === 'string') {
+        if (CODES_LIST[key]) {
+            return CODES_LIST[key].code;
+        }
+    }
+    return null;
+}
+;
+/* harmony default export */ __webpack_exports__["default"] = (CODES_LIST);
+
+
+/***/ }),
+
+/***/ "./src/keyboards/index.ts":
+/*!********************************!*\
+  !*** ./src/keyboards/index.ts ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _English__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./English */ "./src/keyboards/English.ts");
+/* harmony import */ var _Korean__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Korean */ "./src/keyboards/Korean.ts");
+
+
+var KEYBOARDS = {
+    en: _English__WEBPACK_IMPORTED_MODULE_0__["default"],
+    ko: _Korean__WEBPACK_IMPORTED_MODULE_1__["default"]
+};
+/* harmony default export */ __webpack_exports__["default"] = (KEYBOARDS);
 
 
 /***/ })

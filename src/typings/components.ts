@@ -53,15 +53,13 @@ type Config = {
 }
 
 type IMEComposer = {
-  id: string,
+  lang: SupportedLangs;
   compose: (text: string) => string;
   decompose: (text: string) => string;
 };
 
 type Mods = 'ctrlKey' |  'altKey' | 'shiftKey' | 'metaKey' | 'capslock';
 type KeyboardEventMods = { [mod in Mods]?: boolean };
-<<<<<<< Updated upstream
-=======
 
 type KeyboardLayout = {
   lang: SupportedLangs;
@@ -71,4 +69,3 @@ type KeyboardLayout = {
 };
 
 type KeyboardCharset = {[code: string]: CharSet};
->>>>>>> Stashed changes
