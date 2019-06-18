@@ -259,6 +259,12 @@ describe('[Korean]', function() {
     keyboard.changeLang('en');
     expect(keyboard.value).toBe('Qkffl Qkffl');
   });
+
+  it('Change Language to English with mixed chars', function() {
+    let keyboard = GhostKeyboard({lang: 'ko', value: 'Very 빨리'});
+    keyboard.changeLang('en');
+    expect(keyboard.value).toBe('Very Qkffl');
+  });
 });
 
 describe('[English]', function() {
@@ -266,5 +272,11 @@ describe('[English]', function() {
     let keyboard = GhostKeyboard({lang: 'en', value: 'Ghost keyboard'});
     keyboard.changeLang('ko');
     expect(keyboard.value).toBe('홴ㅅ ㅏ됴ㅠㅐㅁㄱㅇ');
+  });
+
+  it('Change Language to Korean with mixed chars', function() {
+    let keyboard = GhostKeyboard({lang: 'en', value: 'Ghost 키보드'});
+    keyboard.changeLang('ko');
+    expect(keyboard.value).toBe('홴ㅅ 키보드');
   });
 });

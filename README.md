@@ -67,6 +67,9 @@ KoreanKeyboard.type('KeyF'); //살
 KoreanKeyboard.type('KeyK'); //사라
 KoreanKeyboard.type('KeyD'); //사랑
 console.log(KoreanKeyboard.value);
+
+KoreanKeyboard.changeLang('en');
+console.log('tkfkd');
 ```
 
 ## Development
