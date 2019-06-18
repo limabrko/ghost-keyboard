@@ -1,4 +1,5 @@
 import codes from './codes';
+import MainKeyboard from './Main';
 
 const KEYSET_LIST: CharSet[] = [
   {code: codes.Backquote.code, base: '`', mod: '~'},
@@ -48,7 +49,7 @@ const KEYSET_LIST: CharSet[] = [
   {code: codes.KeyN.code, base: 'n', mod: 'N'},
   {code: codes.KeyO.code, base: 'o', mod: 'O'},
   {code: codes.KeyP.code, base: 'p', mod: 'P'},
-  {code: codes.KeyQ.code, base: 'q', mod: 'q'},
+  {code: codes.KeyQ.code, base: 'q', mod: 'Q'},
   {code: codes.KeyR.code, base: 'r', mod: 'R'},
   {code: codes.KeyS.code, base: 's', mod: 'S'},
   {code: codes.KeyT.code, base: 't', mod: 'T'},
@@ -65,20 +66,20 @@ function arrangeCharsets() {
 
   KEYSET_LIST.forEach((char: CharSet) => {
     charsListArranged[char.code] = char;
-  }); 
+  });
 
   return charsListArranged;
-} 
+}
 
 const ENGLISH_CHARSETS = arrangeCharsets();
 
-class EnglishKeyboard implements KeyboardLayout {
+class EnglishKeyboard extends MainKeyboard implements KeyboardLayout {
   lang: SupportedLangs;
   charsets: KeyboardCharset;
 
   constructor() {
+    super(ENGLISH_CHARSETS);
     this.lang = 'en';
-    this.charsets = ENGLISH_CHARSETS;
   }
 
   getChar(code: string, mods?: KeyboardEventMods): Char {
@@ -99,7 +100,7 @@ class EnglishKeyboard implements KeyboardLayout {
 
       return char;
     }
-    
+
     return null;
   }
 }

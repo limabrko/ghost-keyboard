@@ -3,8 +3,8 @@ import codes, {get as getCode} from '../keyboards/codes';
 import IME from '../IME';
 import utils from '../helpers/utils';
 
-const defaultConfig: Config = { 
-  lang: 'en', 
+const defaultConfig: Config = {
+  lang: 'en',
   value: '',
   caretPos: {
     startPos: 0,
@@ -85,7 +85,7 @@ class GhostKeyboard {
 
   private setCaretPos(startPos: number, endPos?: number, direction?: CaretDirection) {
     const len = this.value.length;
-    
+
     if (startPos < 0) {
       startPos = 0;
     }
@@ -121,7 +121,7 @@ class GhostKeyboard {
 
   private insertChar(char: string): void {
     let value = this.value,
-        len = value.length;
+      len = value.length;
 
     if (this.pattern) {
       let matchedChars = char.match(this.pattern);
@@ -156,7 +156,7 @@ class GhostKeyboard {
       this.removeSelection();
       return;
     }
-    
+
     this.composing = null;
     this.insertChar(' ');
   }
@@ -168,7 +168,7 @@ class GhostKeyboard {
     }
 
     let {startPos} = this.getCaretPos();
-    
+
     this.composing = null;
     this.setCaretPos(startPos, startPos + 1);
     this.removeSelection();
@@ -179,7 +179,7 @@ class GhostKeyboard {
       this.removeSelection();
       return;
     }
-    
+
     let {startPos} = this.getCaretPos();
 
     if (this.composing) {
@@ -299,9 +299,9 @@ class GhostKeyboard {
   }
 
   private onCompositionstart(e: CompositionEvent) {
-    /* 
-    * Blur is a hack to force the browser 
-    * to cancel the composition 
+    /*
+    * Blur is a hack to force the browser
+    * to cancel the composition
     */
     this.input.blur();
     requestAnimationFrame(this.updateInput.bind(this));
@@ -331,7 +331,7 @@ class GhostKeyboard {
     const {startPos, endPos} = this.getCaretPos();
     this.clipboard = this.value.substr(startPos, endPos);
   }
- 
+
   private onPaste(e?: ClipboardEvent) {
     let pastedText = this.clipboard;
 
@@ -341,7 +341,7 @@ class GhostKeyboard {
     }
 
     this.insertChar(pastedText);
-  } 
+  }
 
   private onInputMousedown() {
     this.composing = null;
@@ -361,7 +361,7 @@ class GhostKeyboard {
     if (input.GhostKeyboard !== undefined) {
       throw new Error('HTMLInputElement has already Ghost keyboard attached.');
     }
-    
+
     // @ts-ignore
     input.GhostKeyboard = true;
 
@@ -401,7 +401,7 @@ class GhostKeyboard {
     let {startPos, endPos} = this.getCaretPos();
     let value = this.value;
     let removedChars = value.slice(startPos, endPos);
-    
+
     this.value = value.slice(0, startPos) + value.slice(endPos);
     this.setCaretPos(startPos);
     this.composing = null;
@@ -516,6 +516,26 @@ class GhostKeyboard {
     this.setCaretPos(0);
   }
 
+  changeLang(lang: SupportedLangs) {
+    const value = this.value;
+    const letters = this.IME.decompose(value).split('');
+    const keyboardCodes = letters.map(letter => this.Keyboard.getCode(letter));
+
+    this.lang = lang;
+    this.Keyboard = new Keyboards[lang];
+    this.IME = new IME[lang];
+
+    const convertedChars = keyboardCodes.map(code => this.Keyboard.getChar(code.code, code.mods));
+    const convertedLetters = convertedChars.map(char => {
+      if (char.code === codes.Space.code) {
+        return ' ';
+      }
+
+      return char.char;
+    });
+    this.value = this.IME.compose(convertedLetters.join(''));
+  }
+
   event(event: KeyboardEvent) {
     if (typeof event !== 'object' || !event.type) {
       throw new Error('The event have to be a KeyboardEvent.');
@@ -534,12 +554,12 @@ class GhostKeyboard {
         this.capslock = event.getModifierState('CapsLock');
         mods.capslock = this.capslock;
       }
-      
+
       let commandAction = this.getCommandAction(this.notPreventCommands, code, mods);
       if (commandAction) {
         return;
       }
-      
+
       event.preventDefault();
       return this.executeKey(code, mods);
     }

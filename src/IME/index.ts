@@ -1,5 +1,5 @@
 import en from './English';
-import ko from './korean';
+import ko from './Korean';
 
 const IME_LIST = {
   en,

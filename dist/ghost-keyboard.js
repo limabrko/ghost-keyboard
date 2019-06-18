@@ -123,31 +123,9 @@ var EnglishComposer = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./src/IME/index.ts":
-/*!**************************!*\
-  !*** ./src/IME/index.ts ***!
-  \**************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _English__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./English */ "./src/IME/English.ts");
-/* harmony import */ var _korean__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./korean */ "./src/IME/korean.ts");
-
-
-var IME_LIST = {
-    en: _English__WEBPACK_IMPORTED_MODULE_0__["default"],
-    ko: _korean__WEBPACK_IMPORTED_MODULE_1__["default"]
-};
-/* harmony default export */ __webpack_exports__["default"] = (IME_LIST);
-
-
-/***/ }),
-
-/***/ "./src/IME/korean.ts":
+/***/ "./src/IME/Korean.ts":
 /*!***************************!*\
-  !*** ./src/IME/korean.ts ***!
+  !*** ./src/IME/Korean.ts ***!
   \***************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -265,6 +243,28 @@ var KoreanComposer = /** @class */ (function () {
     return KoreanComposer;
 }());
 /* harmony default export */ __webpack_exports__["default"] = (KoreanComposer);
+
+
+/***/ }),
+
+/***/ "./src/IME/index.ts":
+/*!**************************!*\
+  !*** ./src/IME/index.ts ***!
+  \**************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _English__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./English */ "./src/IME/English.ts");
+/* harmony import */ var _Korean__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Korean */ "./src/IME/Korean.ts");
+
+
+var IME_LIST = {
+    en: _English__WEBPACK_IMPORTED_MODULE_0__["default"],
+    ko: _Korean__WEBPACK_IMPORTED_MODULE_1__["default"]
+};
+/* harmony default export */ __webpack_exports__["default"] = (IME_LIST);
 
 
 /***/ }),
@@ -713,6 +713,23 @@ var GhostKeyboard = /** @class */ (function () {
         this.value = value;
         this.setCaretPos(0);
     };
+    GhostKeyboard.prototype.changeLang = function (lang) {
+        var _this = this;
+        var value = this.value;
+        var letters = this.IME.decompose(value).split('');
+        var keyboardCodes = letters.map(function (letter) { return _this.Keyboard.getCode(letter); });
+        this.lang = lang;
+        this.Keyboard = new _keyboards__WEBPACK_IMPORTED_MODULE_0__["default"][lang];
+        this.IME = new _IME__WEBPACK_IMPORTED_MODULE_2__["default"][lang];
+        var convertedChars = keyboardCodes.map(function (code) { return _this.Keyboard.getChar(code.code, code.mods); });
+        var convertedLetters = convertedChars.map(function (char) {
+            if (char.code === _keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].Space.code) {
+                return ' ';
+            }
+            return char.char;
+        });
+        this.value = this.IME.compose(convertedLetters.join(''));
+    };
     GhostKeyboard.prototype.event = function (event) {
         if (typeof event !== 'object' || !event.type) {
             throw new Error('The event have to be a KeyboardEvent.');
@@ -863,6 +880,21 @@ function GhostKeyboard(config) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _codes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./codes */ "./src/keyboards/codes.ts");
+/* harmony import */ var _Main__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Main */ "./src/keyboards/Main.ts");
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
 
 var KEYSET_LIST = [
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Backquote.code, base: '`', mod: '~' },
@@ -912,7 +944,7 @@ var KEYSET_LIST = [
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyN.code, base: 'n', mod: 'N' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyO.code, base: 'o', mod: 'O' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyP.code, base: 'p', mod: 'P' },
-    { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyQ.code, base: 'q', mod: 'q' },
+    { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyQ.code, base: 'q', mod: 'Q' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyR.code, base: 'r', mod: 'R' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyS.code, base: 's', mod: 'S' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyT.code, base: 't', mod: 'T' },
@@ -931,10 +963,13 @@ function arrangeCharsets() {
     return charsListArranged;
 }
 var ENGLISH_CHARSETS = arrangeCharsets();
-var EnglishKeyboard = /** @class */ (function () {
+var EnglishKeyboard = /** @class */ (function (_super) {
+    __extends(EnglishKeyboard, _super);
     function EnglishKeyboard() {
-        this.lang = 'en';
-        this.charsets = ENGLISH_CHARSETS;
+        var _this = _super.call(this) || this;
+        _this.lang = 'en';
+        _this.charsets = ENGLISH_CHARSETS;
+        return _this;
     }
     EnglishKeyboard.prototype.getChar = function (code, mods) {
         if (this.charsets[code]) {
@@ -954,7 +989,7 @@ var EnglishKeyboard = /** @class */ (function () {
         return null;
     };
     return EnglishKeyboard;
-}());
+}(_Main__WEBPACK_IMPORTED_MODULE_1__["default"]));
 /* harmony default export */ __webpack_exports__["default"] = (EnglishKeyboard);
 
 
@@ -970,6 +1005,21 @@ var EnglishKeyboard = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _codes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./codes */ "./src/keyboards/codes.ts");
+/* harmony import */ var _Main__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Main */ "./src/keyboards/Main.ts");
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
 
 var KEYSET_LIST = [
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Backquote.code, base: '`', mod: '~' },
@@ -1038,10 +1088,13 @@ function arrangeCharsets() {
     return charsListArranged;
 }
 var KOREAN_CHARSETS = arrangeCharsets();
-var KoreanKeyboard = /** @class */ (function () {
+var KoreanKeyboard = /** @class */ (function (_super) {
+    __extends(KoreanKeyboard, _super);
     function KoreanKeyboard() {
-        this.lang = 'ko';
-        this.charsets = KOREAN_CHARSETS;
+        var _this = _super.call(this) || this;
+        _this.lang = 'ko';
+        _this.charsets = KOREAN_CHARSETS;
+        return _this;
     }
     KoreanKeyboard.prototype.getChar = function (code, mods) {
         if (this.charsets[code]) {
@@ -1058,8 +1111,59 @@ var KoreanKeyboard = /** @class */ (function () {
         return null;
     };
     return KoreanKeyboard;
-}());
+}(_Main__WEBPACK_IMPORTED_MODULE_1__["default"]));
 /* harmony default export */ __webpack_exports__["default"] = (KoreanKeyboard);
+
+
+/***/ }),
+
+/***/ "./src/keyboards/Main.ts":
+/*!*******************************!*\
+  !*** ./src/keyboards/Main.ts ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _codes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./codes */ "./src/keyboards/codes.ts");
+
+var MainKeyboard = /** @class */ (function () {
+    function MainKeyboard() {
+        this.charsets = {};
+    }
+    MainKeyboard.prototype.getCode = function (char) {
+        var _this = this;
+        var code = null;
+        if (char === ' ') {
+            return {
+                code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Space.code
+            };
+        }
+        Object.keys(this.charsets).every(function (charsetCode) {
+            var keyset = _this.charsets[charsetCode];
+            if (keyset.base === char) {
+                code = {
+                    code: keyset.code
+                };
+                return false;
+            }
+            if (keyset.mod === char) {
+                code = {
+                    code: keyset.code,
+                    mods: {
+                        shiftKey: true
+                    }
+                };
+                return false;
+            }
+            return true;
+        });
+        return code;
+    };
+    return MainKeyboard;
+}());
+/* harmony default export */ __webpack_exports__["default"] = (MainKeyboard);
 
 
 /***/ }),

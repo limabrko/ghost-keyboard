@@ -1,4 +1,5 @@
 import codes from './codes';
+import MainKeyboard from './Main';
 
 const KEYSET_LIST: CharSet[] = [
   {code: codes.Backquote.code, base: '`', mod: '~'},
@@ -72,13 +73,13 @@ function arrangeCharsets() {
 
 const KOREAN_CHARSETS = arrangeCharsets();
 
-class KoreanKeyboard implements KeyboardLayout {
+class KoreanKeyboard extends MainKeyboard implements KeyboardLayout {
   lang: SupportedLangs;
   charsets: KeyboardCharset;
-  
+
   constructor() {
+    super(KOREAN_CHARSETS);
     this.lang = 'ko';
-    this.charsets = KOREAN_CHARSETS;
   }
 
   getChar(code: string, mods?: KeyboardEventMods): Char {
@@ -95,7 +96,7 @@ class KoreanKeyboard implements KeyboardLayout {
 
       return char;
     }
-    
+
     return null;
   }
 }

@@ -41,14 +41,14 @@ class KoreanComposer implements IMEComposer {
     } = UNICODE_DATA;
 
     let firstUnicode = text.charCodeAt(0),
-        firstChar = String.fromCharCode(firstUnicode),
-        curUnicode,
-        initialIndex,
-        mergeUnicode,
-        medialIndex,
-        finaleIndex,
-        dFinaleIndex,
-        SBaseUnicode;
+      firstChar = String.fromCharCode(firstUnicode),
+      curUnicode,
+      initialIndex,
+      mergeUnicode,
+      medialIndex,
+      finaleIndex,
+      dFinaleIndex,
+      SBaseUnicode;
 
     for (let i = 1; i < textLen; ++i) {
       curUnicode = text.charCodeAt(i);
@@ -104,7 +104,7 @@ class KoreanComposer implements IMEComposer {
           continue;
         }
       }
-      
+
       firstUnicode = curUnicode;
       firstChar = firstChar + String.fromCharCode(curUnicode);
     }
@@ -128,12 +128,12 @@ class KoreanComposer implements IMEComposer {
     } = UNICODE_DATA;
 
     let len = text.length,
-        firstChar = "",
-        curUnicode,
-        SBaseUnicode,
-        initialUnicode,
-        VBaseUnicode,
-        finaleUnicode;
+      firstChar = "",
+      curUnicode,
+      SBaseUnicode,
+      initialUnicode,
+      VBaseUnicode,
+      finaleUnicode;
 
     for (let b = 0; b < len; b++) {
       curUnicode = text.charCodeAt(b);

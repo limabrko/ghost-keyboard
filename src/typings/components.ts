@@ -49,8 +49,8 @@ type Config = {
   value?: string;
   caretPos?: CaretPos;
   input?: HTMLInputElement;
-  pattern?: RegExp; 
-} 
+  pattern?: RegExp;
+}
 
 type IMEComposer = {
   lang: SupportedLangs;
@@ -64,6 +64,7 @@ type KeyboardEventMods = { [mod in Mods]?: boolean };
 type KeyboardLayout = {
   lang: SupportedLangs;
   charsets: KeyboardCharset;
+  getCode: (char: string) => {code: string, mods?: KeyboardEventMods}|null;
   getChar: (code: string, mods?: KeyboardEventMods) => Char;
 };
 
