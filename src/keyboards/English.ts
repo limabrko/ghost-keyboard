@@ -49,7 +49,7 @@ const KEYSET_LIST: CharSet[] = [
   {code: codes.KeyN.code, base: 'n', mod: 'N'},
   {code: codes.KeyO.code, base: 'o', mod: 'O'},
   {code: codes.KeyP.code, base: 'p', mod: 'P'},
-  {code: codes.KeyQ.code, base: 'q', mod: 'q'},
+  {code: codes.KeyQ.code, base: 'q', mod: 'Q'},
   {code: codes.KeyR.code, base: 'r', mod: 'R'},
   {code: codes.KeyS.code, base: 's', mod: 'S'},
   {code: codes.KeyT.code, base: 't', mod: 'T'},
@@ -70,6 +70,11 @@ function arrangeCharsets() {
 
   return charsListArranged;
 }
+<<<<<<< Updated upstream
+=======
+
+const ENGLISH_CHARSETS = arrangeCharsets();
+>>>>>>> Stashed changes
 
 class EnglishKeyboard extends MainKeyboard {
   constructor(props: KeyboardConfig) {
@@ -77,6 +82,39 @@ class EnglishKeyboard extends MainKeyboard {
 
     this.lang = 'en';
     this.charsets = arrangeCharsets();
+  }
+
+  getCode(char: string) {
+    let code = null;
+
+    if (char === ' ') {
+      return {
+        code: codes.Space.code
+      };
+    }
+
+    KEYSET_LIST.every(keyset => {
+      if (keyset.base === char) {
+        code = {
+          code: keyset.code
+        };
+        return false;
+      }
+
+      if (keyset.mod === char) {
+        code = {
+          code: keyset.code,
+          mods: {
+            shiftKey: true
+          }
+        };
+        return false;
+      }
+
+      return true;
+    });
+
+    return code;
   }
 
   getChar(code: string, mods?: KeyboardEventMods): Char {
@@ -97,7 +135,7 @@ class EnglishKeyboard extends MainKeyboard {
 
       return char;
     }
-    
+
     return null;
   }
 }

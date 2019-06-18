@@ -60,3 +60,15 @@ type IMEComposer = {
 
 type Mods = 'ctrlKey' |  'altKey' | 'shiftKey' | 'metaKey' | 'capslock';
 type KeyboardEventMods = { [mod in Mods]?: boolean };
+<<<<<<< Updated upstream
+=======
+
+type KeyboardLayout = {
+  lang: SupportedLangs;
+  charsets: KeyboardCharset;
+  getCode: (char: string) => {code: string, mods?: KeyboardEventMods}|null;
+  getChar: (code: string, mods?: KeyboardEventMods) => Char;
+};
+
+type KeyboardCharset = {[code: string]: CharSet};
+>>>>>>> Stashed changes

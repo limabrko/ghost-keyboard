@@ -11,7 +11,7 @@ function copyToClipboard(str) {
 }
 
 describe('[English] ', function() {
-  
+
   it('Create Keyboard', function() {
     let keyboard = GhostKeyboard({lang: 'en'});
     expect(keyboard.lang).toBe('en');
@@ -22,11 +22,11 @@ describe('[English] ', function() {
     expect(keyboard.value).toBe('');
 
     keyboard.type('KeyI', {shiftKey: true});
-    expect(keyboard.value).toBe('I'); 
+    expect(keyboard.value).toBe('I');
 
     keyboard.type('Space');
     expect(keyboard.value).toBe('I ');
-    
+
     keyboard.type('KeyL');
     expect(keyboard.value).toBe('I l');
 
@@ -50,7 +50,7 @@ describe('[English] ', function() {
 describe('[Korean]', function() {
   it('Create Keyboard', function() {
     let keyboard = GhostKeyboard({lang: 'ko'});
-    expect(keyboard.lang).toBe('ko'); 
+    expect(keyboard.lang).toBe('ko');
   });
 
   it('Text: 한국 사랑', function() {
@@ -83,7 +83,7 @@ describe('[Korean]', function() {
 
     keyboard.type('KeyK');
     expect(keyboard.value).toBe('한국 사');
-    
+
     keyboard.type('KeyF');
     expect(keyboard.value).toBe('한국 살');
 
@@ -115,7 +115,7 @@ describe('[Korean]', function() {
 
     keyboard.type('KeyH');
     expect(keyboard.value).toBe('조');
-    
+
     keyboard.type('KeyG');
     expect(keyboard.value).toBe('좋');
 
@@ -234,3 +234,39 @@ describe('[MoveCursor]', function() {
     expect(keyboard.caretPos.endPos).toBe(0);
   });
 });
+<<<<<<< Updated upstream
+=======
+
+describe('[Commands]', function() {
+  it('Copy and Paste', function() {
+    let keyboard = GhostKeyboard({lang: 'en', value: 'I love you'});
+
+    // Select Whole Text
+    keyboard.type('KeyA', {ctrlKey: true});
+    // Copy to clipboard
+    keyboard.type('KeyC', {ctrlKey: true});
+    // Cancel Selection
+    keyboard.type('ArrowRight');
+    // Paste clipboard
+    keyboard.type('KeyV', {ctrlKey: true});
+
+    expect(keyboard.value).toBe('I love youI love you');
+  });
+});
+
+describe('[Korean]', function() {
+  it('Change Language to English', function() {
+    let keyboard = GhostKeyboard({lang: 'ko', value: '빨리 빨리'});
+    keyboard.changeLang('en');
+    expect(keyboard.value).toBe('Qkffl Qkffl');
+  });
+});
+
+describe('[English]', function() {
+  it('Change Language to Korean', function() {
+    let keyboard = GhostKeyboard({lang: 'en', value: 'Ghost keyboard'});
+    keyboard.changeLang('ko');
+    expect(keyboard.value).toBe('홴ㅅ ㅏ됴ㅠㅐㅁㄱㅇ');
+  });
+});
+>>>>>>> Stashed changes

@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 import en from './english';
 import ko from './korean';
+=======
+import en from './English';
+import ko from './Korean';
+>>>>>>> Stashed changes
 
 const IME_LIST: {[lang in SupportedLangs]: IMEComposer} = {
   en,

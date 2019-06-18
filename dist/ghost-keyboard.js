@@ -119,6 +119,7 @@ var ENGLISH = {
 
 /***/ }),
 
+<<<<<<< Updated upstream
 /***/ "./src/IME/index.ts":
 /*!**************************!*\
   !*** ./src/IME/index.ts ***!
@@ -152,8 +153,11 @@ var IME = /** @class */ (function () {
 /***/ }),
 
 /***/ "./src/IME/korean.ts":
+=======
+/***/ "./src/IME/Korean.ts":
+>>>>>>> Stashed changes
 /*!***************************!*\
-  !*** ./src/IME/korean.ts ***!
+  !*** ./src/IME/Korean.ts ***!
   \***************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -175,39 +179,53 @@ var UNICODE_DATA = {
     //LBase: 4352
     //TBase: 4519
 };
+<<<<<<< Updated upstream
 var KOREAN = {
     id: 'ko',
     compose: function (text) {
+=======
+function isLead(unicode) {
+    var initialIndex = UNICODE_DATA.initial.indexOf(unicode);
+    return initialIndex !== -1;
+}
+function isVowel(unicode) {
+    var mergeUnicode = unicode - UNICODE_DATA.VBase;
+    return (0 <= mergeUnicode);
+}
+var KoreanComposer = /** @class */ (function () {
+    function KoreanComposer() {
+        this.lang = 'ko';
+    }
+    KoreanComposer.prototype.compose = function (text) {
+>>>>>>> Stashed changes
         var textLen = text.length;
         if (textLen === 0) {
             return "";
         }
         var initial = UNICODE_DATA.initial, finale = UNICODE_DATA.finale, VBase = UNICODE_DATA.VBase, SBase = UNICODE_DATA.SBase, VCount = UNICODE_DATA.VCount, TCount = UNICODE_DATA.TCount, NCount = UNICODE_DATA.NCount, LCount = UNICODE_DATA.LCount, dFinale = UNICODE_DATA.dFinale, dMedial = UNICODE_DATA.dMedial;
-        var firstUnicode = text.charCodeAt(0), firstChar = String.fromCharCode(firstUnicode), curUnicode, initialIndex, mergeUnicode, medialIndex, finaleIndex, dFinaleIndex, SBaseUnicode;
+        var prevUnicode = text.charCodeAt(0), composition = String.fromCharCode(prevUnicode), curUnicode, initialIndex, mergeUnicode, medialIndex, finaleIndex, dFinaleIndex, SBaseUnicode;
         for (var i = 1; i < textLen; ++i) {
             curUnicode = text.charCodeAt(i);
-            initialIndex = initial.indexOf(firstUnicode);
-            if (initialIndex !== -1) {
+            if (isLead(prevUnicode) && isVowel(curUnicode)) {
+                initialIndex = initial.indexOf(prevUnicode);
                 mergeUnicode = curUnicode - VBase;
-                if (0 <= mergeUnicode && mergeUnicode < VCount) {
-                    firstUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
-                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
-                    continue;
-                }
+                prevUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
+                composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
+                continue;
             }
-            SBaseUnicode = firstUnicode - SBase;
+            SBaseUnicode = prevUnicode - SBase;
             if (0 <= SBaseUnicode && SBaseUnicode < 11145 && (SBaseUnicode % TCount) === 0) {
                 finaleIndex = finale.indexOf(curUnicode);
                 if (finaleIndex !== -1) {
-                    firstUnicode += finaleIndex;
-                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
+                    prevUnicode += finaleIndex;
+                    composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
                     continue;
                 }
                 mergeUnicode = (SBaseUnicode % NCount) / TCount;
                 medialIndex = dMedial.indexOf((mergeUnicode * 100) + (curUnicode - VBase));
                 if (medialIndex > 0) {
-                    firstUnicode += (medialIndex - mergeUnicode) * TCount;
-                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
+                    prevUnicode += (medialIndex - mergeUnicode) * TCount;
+                    composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
                     continue;
                 }
             }
@@ -217,30 +235,35 @@ var KOREAN = {
                 if (0 <= mergeUnicode && mergeUnicode < VCount) {
                     initialIndex = initial.indexOf(finale[finaleIndex]);
                     if (0 <= initialIndex && initialIndex < LCount) {
-                        firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode - finaleIndex);
-                        firstUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
-                        firstChar = firstChar + String.fromCharCode(firstUnicode);
+                        composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode - finaleIndex);
+                        prevUnicode = SBase + (initialIndex * VCount + mergeUnicode) * TCount;
+                        composition = composition + String.fromCharCode(prevUnicode);
                         continue;
                     }
                     if (finaleIndex < dFinale.length && dFinale[finaleIndex] !== 0) {
-                        firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode - finaleIndex + Math.floor(dFinale[finaleIndex] / 100));
-                        firstUnicode = SBase + (initial.indexOf(finale[(dFinale[finaleIndex] % 100)]) * VCount + mergeUnicode) * TCount;
-                        firstChar = firstChar + String.fromCharCode(firstUnicode);
+                        composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode - finaleIndex + Math.floor(dFinale[finaleIndex] / 100));
+                        prevUnicode = SBase + (initial.indexOf(finale[(dFinale[finaleIndex] % 100)]) * VCount + mergeUnicode) * TCount;
+                        composition = composition + String.fromCharCode(prevUnicode);
                         continue;
                     }
                 }
                 dFinaleIndex = dFinale.indexOf((finaleIndex * 100) + finale.indexOf(curUnicode));
                 if (dFinaleIndex > 0) {
-                    firstUnicode = firstUnicode + dFinaleIndex - finaleIndex;
-                    firstChar = firstChar.slice(0, firstChar.length - 1) + String.fromCharCode(firstUnicode);
+                    prevUnicode = prevUnicode + dFinaleIndex - finaleIndex;
+                    composition = composition.slice(0, composition.length - 1) + String.fromCharCode(prevUnicode);
                     continue;
                 }
             }
-            firstUnicode = curUnicode;
-            firstChar = firstChar + String.fromCharCode(curUnicode);
+            prevUnicode = curUnicode;
+            composition = composition + String.fromCharCode(curUnicode);
         }
+<<<<<<< Updated upstream
         return firstChar;
     },
+=======
+        return composition;
+    };
+>>>>>>> Stashed changes
     /**
      * Decompose a korean char
      * @param {String} text
@@ -248,26 +271,56 @@ var KOREAN = {
      */
     decompose: function (text) {
         var initial = UNICODE_DATA.initial, finale = UNICODE_DATA.finale, VBase = UNICODE_DATA.VBase, SBase = UNICODE_DATA.SBase, TCount = UNICODE_DATA.TCount, NCount = UNICODE_DATA.NCount, SCount = UNICODE_DATA.SCount;
-        var len = text.length, firstChar = "", curUnicode, SBaseUnicode, initialUnicode, VBaseUnicode, finaleUnicode;
+        var len = text.length, composition = "", curUnicode, SBaseUnicode, initialUnicode, VBaseUnicode, finaleUnicode;
         for (var b = 0; b < len; b++) {
             curUnicode = text.charCodeAt(b);
             SBaseUnicode = curUnicode - SBase;
             if (SBaseUnicode < 0 || SBaseUnicode >= SCount) {
-                firstChar = firstChar + String.fromCharCode(curUnicode);
+                composition = composition + String.fromCharCode(curUnicode);
                 continue;
             }
             initialUnicode = initial[Math.floor(SBaseUnicode / NCount)];
             VBaseUnicode = VBase + (SBaseUnicode % NCount) / TCount;
             finaleUnicode = finale[SBaseUnicode % TCount];
-            firstChar = firstChar + String.fromCharCode(initialUnicode, VBaseUnicode);
+            composition = composition + String.fromCharCode(initialUnicode, VBaseUnicode);
             if (finaleUnicode !== 0) {
-                firstChar = firstChar + String.fromCharCode(finaleUnicode);
+                composition = composition + String.fromCharCode(finaleUnicode);
             }
         }
+<<<<<<< Updated upstream
         return firstChar;
     }
 };
 /* harmony default export */ __webpack_exports__["default"] = (KOREAN);
+=======
+        return composition;
+    };
+    return KoreanComposer;
+}());
+/* harmony default export */ __webpack_exports__["default"] = (KoreanComposer);
+>>>>>>> Stashed changes
+
+
+/***/ }),
+
+/***/ "./src/IME/index.ts":
+/*!**************************!*\
+  !*** ./src/IME/index.ts ***!
+  \**************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _English__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./English */ "./src/IME/English.ts");
+/* harmony import */ var _Korean__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Korean */ "./src/IME/Korean.ts");
+
+
+var IME_LIST = {
+    en: _English__WEBPACK_IMPORTED_MODULE_0__["default"],
+    ko: _Korean__WEBPACK_IMPORTED_MODULE_1__["default"]
+};
+/* harmony default export */ __webpack_exports__["default"] = (IME_LIST);
 
 
 /***/ }),
@@ -705,6 +758,23 @@ var GhostKeyboard = /** @class */ (function () {
         this.value = value;
         this.setCaretPos(0);
     };
+    GhostKeyboard.prototype.changeLang = function (lang) {
+        var _this = this;
+        var value = this.value;
+        var letters = this.IME.decompose(value).split('');
+        var keyboardCodes = letters.map(function (letter) { return _this.Keyboard.getCode(letter); });
+        this.lang = lang;
+        this.Keyboard = new _keyboards__WEBPACK_IMPORTED_MODULE_0__["default"][lang];
+        this.IME = new _IME__WEBPACK_IMPORTED_MODULE_2__["default"][lang];
+        var convertedChars = keyboardCodes.map(function (code) { return _this.Keyboard.getChar(code.code, code.mods); });
+        var convertedLetters = convertedChars.map(function (char) {
+            if (char.code === _keyboards_codes__WEBPACK_IMPORTED_MODULE_1__["default"].Space.code) {
+                return ' ';
+            }
+            return char.char;
+        });
+        this.value = this.IME.compose(convertedLetters.join(''));
+    };
     GhostKeyboard.prototype.event = function (event) {
         if (typeof event !== 'object' || !event.type) {
             throw new Error('The event have to be a KeyboardEvent.');
@@ -1055,7 +1125,7 @@ var KEYSET_LIST = [
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyN.code, base: 'n', mod: 'N' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyO.code, base: 'o', mod: 'O' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyP.code, base: 'p', mod: 'P' },
-    { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyQ.code, base: 'q', mod: 'q' },
+    { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyQ.code, base: 'q', mod: 'Q' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyR.code, base: 'r', mod: 'R' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyS.code, base: 's', mod: 'S' },
     { code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].KeyT.code, base: 't', mod: 'T' },
@@ -1081,6 +1151,33 @@ var EnglishKeyboard = /** @class */ (function (_super) {
         _this.charsets = arrangeCharsets();
         return _this;
     }
+    EnglishKeyboard.prototype.getCode = function (char) {
+        var code = null;
+        if (char === ' ') {
+            return {
+                code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Space.code
+            };
+        }
+        KEYSET_LIST.every(function (keyset) {
+            if (keyset.base === char) {
+                code = {
+                    code: keyset.code
+                };
+                return false;
+            }
+            if (keyset.mod === char) {
+                code = {
+                    code: keyset.code,
+                    mods: {
+                        shiftKey: true
+                    }
+                };
+                return false;
+            }
+            return true;
+        });
+        return code;
+    };
     EnglishKeyboard.prototype.getChar = function (code, mods) {
         if (this.charsets[code]) {
             var char = {
@@ -1233,6 +1330,50 @@ var KoreanKeyboard = /** @class */ (function (_super) {
         _this.charsets = arrangeCharsets();
         return _this;
     }
+<<<<<<< Updated upstream
+=======
+    KoreanKeyboard.prototype.getCode = function (char) {
+        var code = null;
+        if (char === ' ') {
+            return {
+                code: _codes__WEBPACK_IMPORTED_MODULE_0__["default"].Space.code
+            };
+        }
+        KEYSET_LIST.every(function (keyset) {
+            if (keyset.base === char) {
+                code = {
+                    code: keyset.code
+                };
+                return false;
+            }
+            if (keyset.mod === char) {
+                code = {
+                    code: keyset.code,
+                    mods: {
+                        shiftKey: true
+                    }
+                };
+                return false;
+            }
+            return true;
+        });
+        return code;
+    };
+    KoreanKeyboard.prototype.getChar = function (code, mods) {
+        if (this.charsets[code]) {
+            var char = {
+                code: code,
+                char: this.charsets[code].base,
+                compose: this.charsets[code].compose
+            };
+            if (mods && mods.shiftKey && this.charsets[code].mod) {
+                char.char = this.charsets[code].mod;
+            }
+            return char;
+        }
+        return null;
+    };
+>>>>>>> Stashed changes
     return KoreanKeyboard;
 }(_Main__WEBPACK_IMPORTED_MODULE_1__["default"]));
 /* harmony default export */ __webpack_exports__["default"] = (KoreanKeyboard);

@@ -75,8 +75,69 @@ class KoreanKeyboard extends MainKeyboard {
   constructor(props: KeyboardConfig) {
     super(props);
 
+<<<<<<< Updated upstream
     this.lang = 'ko';
     this.charsets = arrangeCharsets();
+=======
+class KoreanKeyboard implements KeyboardLayout {
+  lang: SupportedLangs;
+  charsets: KeyboardCharset;
+
+  constructor() {
+    this.lang = 'ko';
+    this.charsets = KOREAN_CHARSETS;
+  }
+
+  getCode(char: string) {
+    let code = null;
+
+    if (char === ' ') {
+      return {
+        code: codes.Space.code
+      };
+    }
+
+    KEYSET_LIST.every(keyset => {
+      if (keyset.base === char) {
+        code = {
+          code: keyset.code
+        };
+        return false;
+      }
+
+      if (keyset.mod === char) {
+        code = {
+          code: keyset.code,
+          mods: {
+            shiftKey: true
+          }
+        };
+        return false;
+      }
+
+      return true;
+    });
+
+    return code;
+  }
+
+  getChar(code: string, mods?: KeyboardEventMods): Char {
+    if (this.charsets[code]) {
+      let char = {
+        code: code,
+        char: this.charsets[code].base,
+        compose: this.charsets[code].compose
+      };
+
+      if (mods && mods.shiftKey && this.charsets[code].mod) {
+        char.char = this.charsets[code].mod;
+      }
+
+      return char;
+    }
+
+    return null;
+>>>>>>> Stashed changes
   }
 }
 
