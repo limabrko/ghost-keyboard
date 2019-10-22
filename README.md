@@ -105,6 +105,11 @@ To contribute, please fork GhostKeyboard, add your patch and tests for it (in th
 - Other keyboard languages
 - Convert typed text in other keyboard layout
 
+## Built with
+- [TypeScript](https://www.typescriptlang.org/)
+- [Karma](https://karma-runner.github.io)
+- [Webpack](https://webpack.js.org/)
+
 ## License
 
 [MIT © Felipe Lima](./LICENSE.md)
