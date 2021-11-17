@@ -14,7 +14,7 @@
 
 ---
 
-Check out the [DEMO PAGE](https://fill-lima.github.io/ghost-keyboard/).
+Check out the [DEMO PAGE](https://lima-space.github.io/ghost-keyboard/).
 
 ### Languages
 - English (en) :us:
